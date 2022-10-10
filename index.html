@@ -57,7 +57,7 @@
     let layer = L.canvasLayer.scalarField(s, {
       color: chroma.scale('OrRd').domain(s.range),
       opacity: 0.7,
-      interpolate: true,
+      interpolate: false,
       mouseMoveCursor: null
     }).addTo(map);
     layer.on("click", function(e) {
