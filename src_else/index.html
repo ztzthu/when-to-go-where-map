@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Gang Project 2022</title>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script>
+      // d3v3 = d3;
+    </script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script>
+      d3v3 = d3;
+    </script>
+    <script src="https://code.jquery.com/jquery-1.7.2.min.js"></script>
+    <meta charset="utf-8" />
+    <!-- <script src="lib/d3.min.js"></script> -->
+    <script src="lib/topojson.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://calvinmetcalf.github.io/leaflet-ajax/dist/leaflet.ajax.js"
+    ></script>
+    <!-- <script type="text/javascript" src ="https://leafletjs.com/examples/choropleth/us-states.js"></script> -->
+    <script src="data/world.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+      integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+      crossorigin=""
+    ></script>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+      crossorigin="anonymous"
+    ></script>
+
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="treemap.css" />
+  </head>
+
+  <body>
+    <h1 style="margin-bottom: 0px">Global Food Balances - Food vs Feed</h1>
+    <h2 style="margin-top: 2px; margin-bottom: 0px">
+      Data Gang Visualization Project COM-480
+    </h2>
+    <br />
+
+    <div style="text-align: center">
+      <small
+        >Note: this webpage, is better viewed on PC with full window
+        size.</small
+      >
+    </div>
+
+    <br />
+
+    <div
+      style="display: flex; gap: 8em; margin-top: 2em"
+      class="project-description"
+    >
+      <div class="header-section" style="flex: 5">
+        <h3 style="margin-top: 0px">The data</h3>
+        <div>
+          Our Food Balance Sheet dataset contains four important features:
+          <ol>
+            <li>
+              the quantity of food supplied as well as consumed by either people
+              (noted as “food”) or livestock (noted as “feed”)
+            </li>
+            <li>
+              The aforementioned quantity of food specified by different food
+              types
+            </li>
+
+            <li>The aforementioned quantity of food by different countries</li>
+            <li>All across different years.</li>
+          </ol>
+        </div>
+        <div>
+          In light of this, two questions arise naturally: <br />
+
+          <ol>
+            <li>How much food is consumed by people or by livestock?</li>
+            <li>What are the dominant types of food in each case?</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="header-counters">
+        <div class="counter" id="counter_pop_undernourished"></div>
+        <div class="counter mt-2" id="counter_us_feed"></div>
+      </div>
+
+      <div class="header-section" style="flex: 5">
+        <h3 style="margin-top: 0px">The problem</h3>
+        <div>
+          Food is a major concern worldwide and it is a problem that is expected
+          to get even worse year by year due to global warming and climate
+          concerns. Nowadays, one-third of our greenhouse gas emissions comes
+          from the agriculture sector. The world population is expected to grow
+          by 2 billion in 2050, and feeding the world has become an increasingly
+          concerning problem. Still, a big part of the grain harvested goes
+          towards the meat industry, to feed livestock. 
+        </div>
+        <br />
+        <div>
+          Our goal in this project will be to visualize the share of produced
+          food that goes towards the breeding industry, and what is used to
+          actually feed citizens. We would also like to show how food supply 
+          and distribution have changed in the 
+          past 60 years and to visualize dietary differences among countries.
+          
+        </div>
+      </div>
+    </div>
+
+    <br />
+
+    <div class="opacity-anim">
+      <div class="description" style="margin-top: 10em">
+        <h2>
+          Question 1. How much food ended up feeding the people, and how much
+          ended up feeding the livestock?
+        </h2>
+      </div>
+      <div class="first-screen">
+        <div class="map-container">
+          <div id="map"></div>
+
+          <div class="slidecontainer">
+            <input
+              type="range"
+              min="0"
+              max="58"
+              value="58"
+              class="slider"
+              id="current_year_slider"
+            />
+            <div id="current_year">Year: 2019</div>
+          </div>
+        </div>
+
+        <div class="right-col">
+          <fieldset>
+            <legend>Type of Aliment</legend>
+
+            <div>
+              <input type="radio" id="scales" name="scales" value="0" />
+              <label for="scales">Food: aliment for feeding people</label>
+            </div>
+            <div>
+              <input type="radio" id="scales" name="scales" value="1" />
+              <label for="scales">Feed: aliment for feeding livestock</label>
+            </div>
+
+            <div>
+              <input type="radio" id="scales" name="scales" value="2" checked />
+              <label for="horns">Overall: overall aliment supply</label>
+            </div>
+          </fieldset>
+
+          <div className="right-col-section">
+            <legend class="section-title mt-4" style="margin-bottom: 0">
+              Food vs Feed
+            </legend>
+            <div class="piesection">
+              <div id="piechart"></div>
+              <div id="pielegend"></div>
+            </div>
+          </div>
+
+          <div className="right-col-section">
+            <legend class="mt-4">Daily Available Calorie Amount</legend>
+            <p>The full bar represents 2500 calories (the recommended daily intake). The red portion represents the amount of food in kcal/capita/day available for human consumption.</p>
+            <span>North America</span>
+            <div class="supply-stickman" id="northam"></div>
+            <span>South America</span>
+            <div class="supply-stickman" id="southam"></div>
+            <span>Europe</span>
+            <div class="supply-stickman" id="eur"></div>
+            <span>Africa</span>
+            <div class="supply-stickman" id="afr"></div>
+            <span>Asia</span>
+            <div class="supply-stickman" id="asia"></div>
+            <span>Oceania</span>
+            <div class="supply-stickman" id="oce"></div>
+          </div>
+
+          
+        </div>
+      </div>
+
+      <div
+        style="
+          padding-left: 10%;
+          padding-right: 10%;
+          margin-top: 3em;
+          display: flex;
+          gap: 2em;
+        "
+      >
+        <div class="header-section">
+          <h3 style="margin-top: 0px">How to use?</h3>
+          <div>
+            Using this interactive map, you can visualize data for the entire
+            world. For every country, you can see how well people are fed, how much
+            food goes towards feeding people and how much goes towards feeding
+            livestock. Using the slider at the bottom of the map, you can access
+            data for every year recorded. On the side you can see a few charts
+            containing global aggregates. <br /><br />Click on any country to
+            have more detailed information about it!
+          </div>
+        </div>
+        <div class="header-section">
+          <h3 style="margin-top: 0px">What does it show?</h3>    
+          <div>
+            The most striking thing to do is to switch between the "Food" and
+            "Feed" modes and see that many countries allocate a vast quantity of food to livestock. 
+            In the USA alone, for every person, 1000 tons
+            of food are used to feed livestock every year!<br />
+            It is interesting to see that this trend mostly applies to richer
+            countries, the poorer ones tend to have a larger gap between food and feed amounts. 
+            Our charts on the right also show quite evidently that we have way more
+            food than needed in the world, the main problem is how it is
+            partitioned. Around a quarter of the production goes towards feeding
+            livestock, and with this supply alone we could feed most of the
+            population. Since 2010, every continent has enough calories per capita per 
+            day to feed their population. Unfortunately, we know that many people continue to 
+            lack access to food.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <div class="description" style="margin-top: 10em">
+      <h2>
+        Question 2. What are the different types of food for people and for
+        livestock?
+      </h2>
+    </div>
+
+    <div class="second-screen">
+      <div style="margin: 0 auto">
+        <div id="treemap"></div>
+        <div id="tooltip"></div>
+        <div id="statictooltip"></div>
+      </div>
+
+      <div
+        style="
+          padding-left: 10%;
+          padding-right: 10%;
+          margin-top: 6em;
+          display: flex;
+          gap: 2em;
+        "
+      >
+        <div class="header-section">
+          <h3 style="margin-top: 0px">How to use?</h3>
+          <div>
+            Using this interactive treemap, you can visualize data for the
+            entire world. Select a continent to bring you to the country screen.
+            For countries in the grids that are too small to fit the name, hover
+            over the box and the country name will appear in the top bar. Choose
+            food or feed to see the most common aliments allocated for people or
+            for livestock. For any boxes without information in the box,
+            hovering over it will display the information in the bar above.
+          </div>
+        </div>
+        <div class="header-section">
+          <h3 style="margin-top: 0px">What does it show?</h3>
+          <div>
+            This chart shows how much each continent and each country
+            contributes to the global food consumption. By clicking on a
+            country, you can see what proportion of the country's food supply is
+            diverted to food and to feed. You can also see the most common types
+            of food that are consumed by humans and by livestock. It is
+            interesting to distinguish dietary staples by continent and by
+            country. It is evident that these change heavily depending on the
+            growth of the country.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br />
+
+    <p style="text-align: center; margin-top: 5em">
+      👍 created by Lucas, Meghan, Tianzong @ <em>Datagang group</em>, EPFL
+    </p>
+
+    <div
+      class="modal"
+      id="modal"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal-title">Modal title</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              onclick="$('#modal').modal('hide')"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p style="text-align: center; font-weight: bold; margin-top: 1em">
+              Proportion of products used for food or feed for the 10 most
+              common types of aliments (in %)
+            </p>
+            <div id="types_of_food_chart"></div>
+
+            <div id="types_of_food_legend">
+              <div class="legend_row">
+                <div class="pastille pastille_food"></div>
+                <div>Food</div>
+              </div>
+              <div class="legend_row">
+                <div class="pastille pastille_feed"></div>
+                <div>Feed</div>
+              </div>
+            </div>
+
+            <div class="header-section" style="margin-top: 2em">
+              <h3 style="margin-top: 0px; font-size: 1.3rem">
+                What does it show?
+              </h3>
+              <div>
+                It is striking to see that some underfed countries like
+                Afghanistan have nearly no food used for feeding livestock while
+                richer countries like the USA have a huge proportion of aliments
+                like cereals and maize used for cattle.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="map.js"></script>
+    <script src="map_side.js"></script>
+    <script src="index.js"></script>
+    <script src="treemap.js"></script>
+    <script src="country_focus.js"></script>
+    <script src="animated_counter.js"></script>
+  </body>
+</html>

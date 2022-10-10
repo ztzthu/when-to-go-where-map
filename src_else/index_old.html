@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Gang Project 2022</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="index.css" />
+    <meta charset="utf-8" />
+    <script src="lib/d3.min.js"></script>
+    <script src="lib/topojson.min.js"></script>
+    <script type="text/javascript" src="https://calvinmetcalf.github.io/leaflet-ajax/dist/leaflet.ajax.js"></script>
+    <!-- <script type="text/javascript" src ="https://leafletjs.com/examples/choropleth/us-states.js"></script> -->
+    <script src="data/world.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+    integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+    crossorigin=""></script>
+
+    
+  </head>
+
+  <body>
+    <h1>Global Food Balances - Food vs Feed</h1>
+    <h2>Data Gang Visualization Project COM-480</h2>
+    <br>
+
+    <p style="text-align:center">Note: this webpage, as a draft demo, is better viewed on PC with full window size. (We will fix it in the final version!)</p>
+
+    <br>
+
+    <p>Our Food Balance Sheet dataset contains four important features: 1) the quantity of food supplied as well as consumed by either people (noted as “food”) or livestock (noted as “feed”); 2) The aforementioned quantity of food specified by different food types;  3) The aforementioned quantity of food by different countries and 4) across different years.</p>
+    <p>  In light of this, two questions arise naturally: 1) How much food is consumed by people or by livestock? 2) What are the dominant types of food in each case? We would like to visualize the dataset in accordance with the two questions, both country-wisely and time-wisely.
+      </p>
+
+
+    <br>
+
+    <div class="description">
+      <h2>Question 1. How much food ended up feeding the people, and how much ended up feeding the livestock?</h2>
+    </div>
+
+    <div class="first-screen">
+      
+      <div class="map-container">
+        <div id="map"></div>
+
+        <div class="slidecontainer">
+          <input type="range" min="0" max="52" value="50" class="slider" id="current_year_slider">
+          <div id="current_year"></div>
+        </div>
+      </div>
+
+      
+
+      
+
+      <!-- <div class="left-map">
+        <img src="assets/map.png" />
+        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+        <div style="text-align: center;">Current year: 1987</div>
+      </div> -->
+
+      <div class="right-col">
+        <fieldset>
+          <legend>Type of Aliment</legend>
+      
+          <div>
+            <input type="radio" id="scales" name="scales" value="0"
+                   >
+            <label for="scales">Food: aliment for feeding people</label>
+          </div>
+          <div>
+            <input type="radio" id="scales" name="scales" value="1"
+                   >
+            <label for="scales">Feed: aliment for feeding livestock</label>
+          </div>
+      
+          <div>
+            <input type="radio" id="scales" name="scales" value="2" checked>
+            <label for="horns">Overall: overall aliment supply</label>
+          </div>
+      </fieldset>
+
+        <div className="right-col-section">
+          <h2 class="section-title">Population fed by food supplies</h2>
+          <div class="supply-stickmen">
+            <div class="supply-stickman">
+              <span>78%</span>
+              <img src="assets/stickman.webp" style="opacity: 0.4;"/>
+              <span>Asia</span>
+            </div>
+            <div class="supply-stickman">
+              <span>137%</span>
+              <img src="assets/stickman.webp" style="opacity: 0.7"/>
+              <span>Europe</span>
+            </div>
+            <div class="supply-stickman">
+              <span>59%</span>
+              <img src="assets/stickman.webp" style="opacity: 0.1"/>
+              <span>Africa</span>
+            </div>
+            <div class="supply-stickman">
+              <span>175%</span>
+              <img src="assets/stickman.webp"/>
+              <span>America</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="right-col-section">
+          <h2 class="section-title">Population fed by feed supplies</h2>
+          <div class="supply-stickmen">
+            <div class="supply-stickman">
+              <span>78%</span>
+              <img src="assets/stickman.webp" style="opacity: 0.4;"/>
+              <span>Asia</span>
+            </div>
+            <div class="supply-stickman">
+              <span>137%</span>
+              <img src="assets/stickman.webp" style="opacity: 0.7"/>
+              <span>Europe</span>
+            </div>
+            <div class="supply-stickman">
+              <span>59%</span>
+              <img src="assets/stickman.webp" style="opacity: 0.1"/>
+              <span>Africa</span>
+            </div>
+            <div class="supply-stickman">
+              <span>175%</span>
+              <img src="assets/stickman.webp"/>
+              <span>America</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-col-section total-supply">
+          <h2 class="section-title">Total food supply in the world</h2>
+          <img src="assets/food_supply.png" />
+        </div>
+
+      </div>
+    </div>
+    
+    <br>    
+    <br>    
+    <br>    
+    <br>
+
+    <div class="description">
+      <h2>Question 2. What are the different types of food for people and for livestock?</h2>
+      <p>These charts display the proportions of every type of food used for food (feeding humans) and deef (feeding cattle). We can (hopefully!) see disparities in the most represented types of food.</p>
+    </div>
+
+    <div class="second-screen">
+      <div class="scs-first">
+        <div class="scsf-left">
+          <h2>Food quantities per type of aliment</h2>
+          <img src="assets/treemap.png" />
+        </div>
+        <div class="scss-right">
+          <h2>Feed quantities per type of aliment</h2>
+          <img src="assets/treemap.png" />
+        </div>
+      </div>
+      <!-- <div class="scs-second">
+        <div class="scss-left"></div>
+
+      </div> -->
+    </div>
+
+    <br>
+
+    <p style="text-align:center">👍 created by Lucas, Meghan, Tianzong @ <em>Datagang group</em>, EPFL</p>
+
+
+
+    <script src="map.js"></script>
+    <script src="index.js"></script>
+
+    <p id="country_info" style="color: #ff0000;"></p>
+
+    <svg id="myPlot" style="width:500px;height:500px"></svg>
+
+    <script src="hover.js"></script>
+
+  </body>
+</html>

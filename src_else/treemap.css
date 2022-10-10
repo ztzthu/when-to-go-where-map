@@ -1,0 +1,92 @@
+
+#treemap {
+  background: #fff;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin: 0 auto;
+}
+
+.title {
+    /* font-weight: bold; */
+    font-size: 24px;
+    text-align: center;
+    margin-top: 1em;
+    margin-bottom: 0px;
+    padding-bottom: 6px;
+    color: white;
+    background-color: #1A2733;
+}
+text {
+  pointer-events: none;
+}
+
+.topbar text {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+rect {
+  /* fill: none; */
+  stroke: #fff;
+}
+
+rect.parent,
+.topbar rect {
+  stroke-width: 2px;
+}
+
+rect.parent {
+    pointer-events: none;
+}
+
+.topbar rect {
+  fill: lavender;
+}
+
+.topbar:hover rect {
+  fill: #7678ED;
+}
+
+.children rect.parent,
+.topbar rect {
+  cursor: pointer;
+}
+
+.children rect.parent {
+  fill: #bbb;
+  fill-opacity: 0.85;
+}
+
+.children:hover rect.child {
+  fill: #bbb;
+}
+
+.grid .children:hover {
+  fill: white;
+}
+
+g.children:hover {
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+image {
+  filter: blur(0);
+  -webkit-filter: blur(0);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+ .tooltip {
+    background: #eee;
+    box-shadow: 0 0 5px #999999;
+    color: #333;
+    opacity: 0;
+    font-size: 16px;
+    /* left: 10px; */
+    padding: 10px;
+    position: absolute;
+    text-align: center;
+    /* top: 95px; */
+    width: 220px;
+    z-index: 10;
+      }
