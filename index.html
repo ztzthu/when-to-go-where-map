@@ -37,15 +37,15 @@ We use <a href="https://www.nature.com/articles/s41597-020-0453-3">CRU TS 4.0</a
 
 <br><br>
 
-<b>Methodology</b>: Four factors are considered and used to calculate an <b>absolute score</b> for each month: <br>
+<b>Methodology</b>: Four factors are considered and averaged to calculate an <b>absolute score</b> for each month: <br>
 1️⃣ Wet days (20%), the less the better; <br>
 2️⃣ Percipitation (30%), the less the better; <br>
 3️⃣ Maximum temperature (30%), full score when less than 30 degrees; <br>
-4️⃣ Minimum temperature, full score when more than 10 degrees. <br>
+4️⃣ Minimum temperature (20%), full score when more than 10 degrees. <br>
 
 <br>
 
-For each place, the 12 absolute scores are normalized a <b>relative score</b> in [0,100]. In the map we always show this relative score ! 
+For each place, the 12 absolute scores are normalized from [min,max] to a <b>relative score</b> in [0,100]. In the map we always show this relative score ! 😉
 
 <br><br>
 
@@ -91,7 +91,7 @@ Pro tips: click on a place to show the relative score ! 👇
 //   };
 
   // GeoTIFF
-  var tiff = "./data/relative_7.tif";
+  var tiff = "./data/relative_12.tif";
 
 
 
@@ -100,8 +100,9 @@ Pro tips: click on a place to show the relative score ! 👇
                 let s = L.ScalarField.fromGeoTIFF(tiffData.response);
 
                 let relative_1 = L.canvasLayer.scalarField(s, {
-                    opacity: 0.7,
+                    opacity: 0.5,
                     color: chroma.scale('YlOrRd').domain(s.range),
+                    interpolate: false
                 }).addTo(map);
 
                 relative_1.on('click', function (e) {
@@ -121,8 +122,8 @@ Pro tips: click on a place to show the relative score ! 👇
 
                 // Layer Control
                 L.control.layers({
-                    "July": relative_1,
-                    "August": relative_1
+                    "December": relative_1,
+                    "December": relative_1
                 }, {}, {
                     position: 'topright',
                     collapsed: false
