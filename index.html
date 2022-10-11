@@ -55,56 +55,106 @@
 
   // Basemap
   var map = L.map("map").setView([50, 20], 5);
-  var url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  var url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
   L.tileLayer(url, {
     attribution: "OSM & Carto",
     subdomains: "abcd",
     maxZoom: 16
   }).addTo(map);
 
+
+  // Layer Control
+//   var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+//   var baseMaps = {
+//     "<span style='color: gray'>Grayscale</span>": grayscale,
+//     "Streets": streets
+//   };
+
   // GeoTIFF
+  var tiff = "./data/relative_1.tif";
 
 
-  var tiff = "./data/relative_0.tif";
-  fetch(tiff).then(r => r.arrayBuffer()).then(function(buffer) {
-    var s = L.ScalarField.fromGeoTIFF(buffer);
-    let layer = L.canvasLayer.scalarField(s, {
-      color: chroma.scale('OrRd').domain(s.range),
-      opacity: 0.7,
-      interpolate: false,
-      mouseMoveCursor: null,
-    }).addTo(map);
+
+  d3.request(tiff).responseType('arraybuffer').get(
+            function (error, tiffData) {
+                let s = L.ScalarField.fromGeoTIFF(tiffData.response);
+
+                let relative_1 = L.canvasLayer.scalarField(s, {
+                    opacity: 0.7,
+                    color: chroma.scale('YlOrRd').domain(s.range),
+                }).addTo(map);
+
+                relative_1.on('click', function (e) {
+                    if (e.value !== null) {
+                        let v = e.value.toFixed(2);
+                        let html = (`<span class="popupText">Score ${v}</span>`);
+                        let popup = L.popup()
+                            .setLatLng(e.latlng)
+                            .setContent(html)
+                            .openOn(map);
+                    }
+                });
+                // map.fitBounds(layer.getBounds());
 
 
-    // Add score info panel
-
-    var info = L.control();
-
-    info.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-        this.update();
-        return this._div;
-    };
-
-    // method that we will use to update the control based on feature properties passed
-    info.update = function (props) {
-        this._div.innerHTML = '<h4>Relative score</h4>' +  (props!=null ?
-            props
-            : 'Hover over a state');
-    };
-
-    info.addTo(map);
 
 
-    layer.on("click", function(e){
-      if (e.value!=null){
-        info.update(e.value);
-      }
-    })
+                // Layer Control
+                L.control.layers({
+                    "Jan": relative_1,
+                    "Feb": relative_1
+                }, {}, {
+                    position: 'topright',
+                    collapsed: false
+                    }).addTo(map);
 
 
-    // map.fitBounds(layer.getBounds());
-  });
+            });
+  
+
+
+
+
+  // d3.request(tiff).responseType('arraybuffer').get(
+  //   function(error, tiffData) {
+  //     var s = L.ScalarField.fromGeoTIFF(buffer);
+  //     let layer = L.canvasLayer.scalarField(s, {
+  //       color: chroma.scale('OrRd').domain(s.range),
+  //       opacity: 0.7,
+  //       interpolate: false,
+  //       mouseMoveCursor: null,
+  //   }).addTo(map);
+
+
+  //   // Add score info panel
+
+  //   var info = L.control();
+
+  //   info.onAdd = function (map) {
+  //       this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+  //       this.update();
+  //       return this._div;
+  //   };
+
+  //   // method that we will use to update the control based on feature properties passed
+  //   info.update = function (props) {
+  //       this._div.innerHTML = '<h4>Relative score</h4>' +  (props!=null ?
+  //           props
+  //           : 'Hover over a state');
+  //   };
+
+  //   info.addTo(map);
+
+
+  //   layer.on("click", function(e){
+  //     if (e.value!=null){
+  //       info.update(e.value);
+  //     }
+  //   })
+
+
+  //   // map.fitBounds(layer.getBounds());
+  // });
 
 </script>
 
