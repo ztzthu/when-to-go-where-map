@@ -5,13 +5,23 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
     integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
     crossorigin=""/>
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
+
     <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
         integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
         crossorigin="">
     </script>
+    <script src="https://npmcdn.com/geotiff@0.3.6/dist/geotiff.js"></script> <!-- optional -->
+    <script src="https://ihcantabria.github.io/Leaflet.CanvasLayer.Field/dist/leaflet.canvaslayer.field.js"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+
+
+
     <style>
-        #map { width: 100%; height: 1200px; margin-top: 1.5em;}
+        #map { width: 100%; height: 1200px; margin-top: 0.5em;}
         body { font: 16px/1.4 "Helvetica Neue", Arial, sans-serif; }
         .ghbtns { position: relative; top: 4px; margin-left: 5px; }
         a { color: #0077ff; }
@@ -23,21 +33,32 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             border-radius: 5px;
         }
+        /* h3 {
+            margin: 1.5em 1.5em 10px;
+            color: #777;
+        } */
         .info h4 {
             margin: 0 0 5px;
             color: #777;
+        }
+        .bottom {
+            /* position: -webkit-sticky; */
+            position: fixed;
+            width:100%;
+            bottom:0px;
         }
     </style>
 </head>
 <body>
 
-<h4>☀️🌧️🥶🥵 The when-to-go-where map: a visualization of the best month of travel</h4>
+<h3>☀️🌧️🥶🥵 The when-to-go-where map: a visualization of the best month of travel</h3>
 
-We use <a href="https://www.nature.com/articles/s41597-020-0453-3">CRU TS 4.0</a> monthly high-resolution climate dataset to help you find out the best month of travel. 
+We help you find out the best month of travel ! 
 
 <br><br>
 
-<b>Methodology</b>: Four factors are considered and averaged to calculate an <b>absolute score</b> for each month: <br>
+<b>Methodology</b>: We use <a href="https://www.nature.com/articles/s41597-020-0453-3">CRU TS 4.0</a>, monthly high-resolution climate dataset to evaluate the best month of travel.
+Four factors are considered and averaged to calculate an <b>absolute score</b> for each month: <br>
 1️⃣ Wet days (20%), the less the better; <br>
 2️⃣ Percipitation (30%), the less the better; <br>
 3️⃣ Maximum temperature (30%), full score when less than 30 degrees; <br>
@@ -52,26 +73,96 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
 Pro tips: click on a place to show the relative score ! 👇
 <br>
 
+<p id="value"></p>
+<div id="slider"></div>
 <div id="map"></div>
 
-<!-- <script src="../node_modules/simpleheat/simpleheat.js"></script>
-<script src="../src/HeatLayer.js"></script> -->
-
-<!-- CDN references -->
-
-<script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="https://npmcdn.com/geotiff@0.3.6/dist/geotiff.js"></script> <!-- optional -->
-
-<!-- Plugin -->
-<script src="https://ihcantabria.github.io/Leaflet.CanvasLayer.Field/dist/leaflet.canvaslayer.field.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
-
-<script src="./data/absolute_1.js"></script>
-
-
-<!-- Create a map -->
 
 <script>
+
+  // Basemap
+  var map = L.map("map").setView([50, 20], 4);
+  var url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
+  L.tileLayer(url, {
+    attribution: "OSM & Carto",
+    subdomains: "abcd",
+    maxZoom: 16
+  }).addTo(map);
+
+  var month_name = ['Janurary', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+  var relative_1;
+
+  function render_map(month){
+    var tiff = "./data/relative_" + month + ".tif";
+
+    d3.request(tiff).responseType('arraybuffer').get(
+            function (error, tiffData) {
+                let s = L.ScalarField.fromGeoTIFF(tiffData.response);
+
+                relative_1 = L.canvasLayer.scalarField(s, {
+                    opacity: 0.5,
+                    color: chroma.scale(['#272ad7', '#27d7d7', '#2ad727', '#d7d727', '#d73027']).domain(s.range),
+                    interpolate: false
+                }).addTo(map);
+
+                relative_1.on('click', function (e) {
+                    if (e.value !== null) {
+                        let v = e.value.toFixed(2);
+                        let html = (`<span class="popupText">Score of ` + month_name[month-1] + `: ${v}</span>`);
+                        let popup = L.popup()
+                            .setLatLng(e.latlng)
+                            .setContent(html)
+                            .openOn(map);
+                    }
+                });
+                // map.fitBounds(layer.getBounds());
+
+
+
+
+                // Layer Control
+                // L.control.layers({
+                //     "December": relative_1,
+                //     "December": relative_1
+                // }, {}, {
+                //     position: 'topright',
+                //     collapsed: false
+                //     }).addTo(map);
+
+
+            });
+  }
+
+  render_map(1);
+
+    var slider = d3
+      .sliderHorizontal()
+      .min(1)
+      .max(12)
+      .step(1)
+      .width(500)
+      .displayValue(false)
+      .on('onchange', (val) => {
+        // d3.select('#value').text(val);
+        // map.eachLayer(function (layer) {
+        //     map.removeLayer(layer);
+        // });
+        map.removeLayer(relative_1);
+        render_map(val)
+      });
+  
+    d3.select('#slider')
+      .append('svg')
+      .attr('width', '')
+      .attr('height', 100)
+      .append('g')
+      .attr('transform', 'translate(30,30)')
+      .call(slider);
+</script>
+
+
+<!-- <script>
 
   // Basemap
   var map = L.map("map").setView([50, 20], 4);
@@ -177,7 +268,7 @@ Pro tips: click on a place to show the relative score ! 👇
   //   // map.fitBounds(layer.getBounds());
   // });
 
-</script>
+</script> -->
 
 </body>
 </html>
