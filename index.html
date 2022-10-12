@@ -104,8 +104,7 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
 <br>
 <p class="paragraph">1. Click on a place to show the score ! <br> 2. Use the slider to toggle the month! 👇</p>
 
-<p id="value"></p>
-<div id="slider"></div>
+<div id="slider" style="display: inline-block; width: 80%;"></div> <span id="value" style="display: inline-block; text-align: right;">Janurary</span>
 <div id="map"></div>
 
 
@@ -179,14 +178,15 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
         // map.eachLayer(function (layer) {
         //     map.removeLayer(layer);
         // });
+        d3.select('#value').text(month_name[val-1])
         map.removeLayer(relative_1);
-        render_map(val)
+        render_map(val);
       });
   
     d3.select('#slider')
       .append('svg')
       .attr('width', '')
-      .attr('height', 100)
+      .attr('height', '70')
       .append('g')
       .attr('transform', 'translate(30,30)')
       .call(slider);
