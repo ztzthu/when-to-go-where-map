@@ -117,7 +117,7 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
   L.tileLayer(url, {
     attribution: "OSM & Carto",
     subdomains: "abcd",
-    maxZoom: 16
+    maxZoom: 10
   }).addTo(map);
 
   var month_name = ['Janurary', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -125,6 +125,10 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
   var relative_1;
 
   function render_map(month){
+    if (typeof relative_1 !== 'undefined'){
+      map.removeLayer(relative_1);
+    }
+
     var tiff = "./data/relative_" + month + ".tif";
 
     d3.request(tiff).responseType('arraybuffer').get(
@@ -180,7 +184,6 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
         //     map.removeLayer(layer);
         // });
         d3.select('#value').text(month_name[val-1])
-        map.removeLayer(relative_1);
         render_map(val);
       });
   
