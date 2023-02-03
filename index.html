@@ -13,17 +13,33 @@
         integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
         crossorigin="">
     </script>
-    <script src="https://npmcdn.com/geotiff@0.3.6/dist/geotiff.js"></script> <!-- optional -->
+    <script src="https://npmcdn.com/geotiff@0.3.6/dist/geotiff.js"></script> 
     <script src="https://ihcantabria.github.io/Leaflet.CanvasLayer.Field/dist/leaflet.canvaslayer.field.js"></script>
+    <!-- <script type="module" src="canvaslayer/_main.js"></script> -->
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+    <!-- <script src="data/world.js"></script> -->
 
     <!-- No zoom in -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> 
 
     <style>
-        #map { width: 100%; height: 80vh; margin-top: 0.5em;}
-        body { font: 16px/1.4 "Helvetica Neue", Arial, sans-serif; }
+        #map { 
+          position: absolute;
+          width: 100%; 
+          top: 100px;
+          /* height: 90vh;  */
+          bottom: 0;
+          z-index: 1;
+          /* margin-top: 0.5em; */
+        }
+        body { 
+          font: 16px/1.4 "Helvetica Neue", Arial, sans-serif;
+          margin: 0; padding: 0;
+        }
+        html {
+          margin: 0; padding: 0;
+        }
         .ghbtns { position: relative; top: 4px; margin-left: 5px; }
         a { color: #0077ff; }
         .info {
@@ -34,19 +50,15 @@
             box-shadow: 0 0 15px rgba(0,0,0,0.2);
             border-radius: 5px;
         }
-        /* h3 {
-            margin: 1.5em 1.5em 10px;
-            color: #777;
-        } */
-        .info h4 {
+        h3{
+            padding-left: 1em;
+        }
+        .checkbox{
+          padding-left: 1em;
+        }
+        .info h4  {
             margin: 0 0 5px;
             color: #777;
-        }
-        .bottom {
-            /* position: -webkit-sticky; */
-            position: fixed;
-            width:100%;
-            bottom:0px;
         }
         .collapse{
             color: rgb(0, 00, 255);
@@ -58,54 +70,27 @@
             border-left: 4px solid grey;
             padding-left: 10px;
         }
+        #slider{
+          position: absolute; 
+          bottom: 10px;
+          left: 10px;
+          z-index: 1000;
+          background-color: #fff;
+          height: 70px;
+          border-radius: 2px;
+          border: 2px solid rgba(0,0,0,0.2);
+          background-clip: padding-box;
+        }
     </style>
 </head>
 <body>
 
 <h3>☀️🌧️🥶🥵 The when-to-go-where map: the best month of travel visualizer</h3>
+<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map(1)"><label for="relative"> I already know where to go.</label><br>
 
-Looking for a warm place to travel? Tired of endless rain? Want to know the best season to travel? You are in the right place ! 
-
-<br><br>
-
-- <span class="collapse"><b>Methodology</b></span>
-<script>
-var coll = document.getElementsByClassName("collapse");
-var i;
-
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = document.getElementById("methodology");
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  });
-}
-</script>
-<p id="methodology" class="paragraph" style="display: none;">We use <a href="https://www.nature.com/articles/s41597-020-0453-3">CRU TS 4.0</a>, a monthly high-resolution climate dataset to evaluate the best month of travel.
-Four factors are considered and averaged to calculate an <b>absolute score</b> for each month: <br>
-1️⃣ Wet days (20%), the less the better; <br>
-2️⃣ Percipitation (30%), the less the better; <br>
-3️⃣ Maximum temperature (30%), full score when less than 30 degrees; <br>
-4️⃣ Minimum temperature (20%), full score when more than 10 degrees. <br>
-
-<br>
-
-For each place, the 12 absolute scores are normalized from [min,max] to a <b>relative score</b> in [0,100]. In the map we always show this relative score ! 😉
-
-</p>
-
-<br>
-<br>
-
-- <span class="collapse"><b>Tips</b></span>
-<br>
-<p class="paragraph">1. Click on a place to show the score ! <br> 2. Use the slider to toggle the month! 👇</p>
-
-<div id="slider" style="display: inline-block; width: 80%;"></div> <span id="value" style="display: inline-block; text-align: right;">Janurary</span>
+<!-- <div id="slider" style="display: inline-block; width: 80%;"></div>  -->
+<div id="slider"></div> 
+<!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
 <div id="map"></div>
 
 
@@ -117,31 +102,39 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
   L.tileLayer(url, {
     attribution: "OSM & Carto",
     subdomains: "abcd",
-    maxZoom: 10
+    maxZoom: 6
   }).addTo(map);
 
   var month_name = ['Janurary', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-  var relative_1;
+  var relativeMap;
 
   function render_map(month){
-    if (typeof relative_1 !== 'undefined'){
-      map.removeLayer(relative_1);
+    if (typeof relativeMap !== 'undefined'){
+      map.removeLayer(relativeMap);
     }
 
-    var tiff = "./data/relative_" + month + ".tif";
+    const checkBox = document.getElementById('checkbox');
+
+    if(checkBox.checked){
+      var tiff = "https://ztzthu.github.io/when-to-go-where-map/data/relative_" + month + ".tif";
+    } else {
+      var tiff = "https://ztzthu.github.io/when-to-go-where-map/data/absolute_" + month + ".tif";
+    }
 
     d3.request(tiff).responseType('arraybuffer').get(
             function (error, tiffData) {
                 let s = L.ScalarField.fromGeoTIFF(tiffData.response);
+                // s.setSpatialMask(world_mask["features"][5]);
+                console.log(s.range)
 
-                relative_1 = L.canvasLayer.scalarField(s, {
+                relativeMap = L.canvasLayer.scalarField(s, {
                     opacity: 0.5,
-                    color: chroma.scale(['#272ad7', '#27d7d7', '#2ad727', '#d7d727', '#d73027']).domain(s.range),
+                    color: chroma.scale(['#272ad7', '#27d7d7', '#2ad727', '#d7d727', '#d73027']).domain([0, 100]),
                     interpolate: false
                 }).addTo(map);
 
-                relative_1.on('click', function (e) {
+                relativeMap.on('click', function (e) {
                     if (e.value !== null) {
                         let v = e.value.toFixed(2);
                         let html = (`<span class="popupText">Score of ` + month_name[month-1] + `: ${v}</span>`);
@@ -158,8 +151,8 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
 
                 // Layer Control
                 // L.control.layers({
-                //     "December": relative_1,
-                //     "December": relative_1
+                //     "December": relativeMap,
+                //     "December": relativeMap
                 // }, {}, {
                 //     position: 'topright',
                 //     collapsed: false
@@ -171,29 +164,31 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
 
   render_map(1);
 
-    var slider = d3
-      .sliderHorizontal()
-      .min(1)
-      .max(12)
-      .step(1)
-      .width(250)
-      .displayValue(false)
-      .on('onchange', (val) => {
-        // d3.select('#value').text(val);
-        // map.eachLayer(function (layer) {
-        //     map.removeLayer(layer);
-        // });
-        d3.select('#value').text(month_name[val-1])
-        render_map(val);
-      });
+  var slider = d3
+    .sliderHorizontal()
+    .min(1)
+    .max(12)
+    .step(1)
+    .width(250)
+    .displayValue(false)
+    .on('onchange', (val) => {
+      // d3.select('#value').text(val);
+      // map.eachLayer(function (layer) {
+      //     map.removeLayer(layer);
+      // });
+      // d3.select('#value').text(month_name[val-1])
+      render_map(val);
+    });
+
+  d3.select('#slider')
+    .append('svg')
+    // .attr('width', '')
+    // .attr('height', '70')
+    .append('g')
+    .attr('transform', 'translate(20,20)')
+    .call(slider);
+
   
-    d3.select('#slider')
-      .append('svg')
-      .attr('width', '')
-      .attr('height', '70')
-      .append('g')
-      .attr('transform', 'translate(30,30)')
-      .call(slider);
 </script>
 
 
@@ -217,7 +212,7 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
 //   };
 
   // GeoTIFF
-  var tiff = "./data/relative_12.tif";
+  var tiff = "./data/relativeMap2.tif";
 
 
 
@@ -225,13 +220,13 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
             function (error, tiffData) {
                 let s = L.ScalarField.fromGeoTIFF(tiffData.response);
 
-                let relative_1 = L.canvasLayer.scalarField(s, {
+                let relativeMap = L.canvasLayer.scalarField(s, {
                     opacity: 0.5,
                     color: chroma.scale('YlOrRd').domain(s.range),
                     interpolate: false
                 }).addTo(map);
 
-                relative_1.on('click', function (e) {
+                relativeMap.on('click', function (e) {
                     if (e.value !== null) {
                         let v = e.value.toFixed(2);
                         let html = (`<span class="popupText">Score ${v}</span>`);
@@ -248,8 +243,8 @@ For each place, the 12 absolute scores are normalized from [min,max] to a <b>rel
 
                 // Layer Control
                 L.control.layers({
-                    "December": relative_1,
-                    "December": relative_1
+                    "December": relativeMap,
+                    "December": relativeMap
                 }, {}, {
                     position: 'topright',
                     collapsed: false
