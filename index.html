@@ -51,7 +51,8 @@
             border-radius: 5px;
         }
         h3{
-            padding-left: 1em;
+            padding-left: 20px;
+            margin-bottom: 10px;
         }
         .checkbox{
           padding-left: 1em;
@@ -76,17 +77,23 @@
           left: 10px;
           z-index: 1000;
           background-color: #fff;
-          height: 70px;
+          height: 65px;
           border-radius: 2px;
           border: 2px solid rgba(0,0,0,0.2);
           background-clip: padding-box;
+        }
+        #checkbox{
+          margin-left: 20px;
         }
     </style>
 </head>
 <body>
 
 <h3>☀️🌧️🥶🥵 The when-to-go-where map: the best month of travel visualizer</h3>
-<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map(1)"><label for="relative"> I already know where to go.</label><br>
+<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()">I already know where to go, help me find the best month.
+
+<br>
+
 
 <!-- <div id="slider" style="display: inline-block; width: 80%;"></div>  -->
 <div id="slider"></div> 
@@ -97,7 +104,7 @@
 <script>
 
   // Basemap
-  var map = L.map("map").setView([50, 20], 4);
+  var map = L.map("map").setView([50, 20], 3);
   var url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
   L.tileLayer(url, {
     attribution: "OSM & Carto",
@@ -109,7 +116,13 @@
 
   var relativeMap;
 
+  var current_month;
+
   function render_map(month){
+    if (typeof month ==="undefined"){
+      month = current_month;
+    }
+    current_month = month;
     if (typeof relativeMap !== 'undefined'){
       map.removeLayer(relativeMap);
     }
