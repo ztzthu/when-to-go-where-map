@@ -89,10 +89,11 @@
           position: absolute;
           right: 10px;
           top: 110px;
-          width: 360px;
-          height: 360px;
+          width: 260px;
+          height: 260px;
           z-index: 1000;
           background-color: #fff;
+          /* opacity: 0%; */
           border-radius: 2px;
           border: 2px solid rgba(0,0,0,0.2);
           background-clip: padding-box;
@@ -101,11 +102,11 @@
 </head>
 <body>
 
-<h3>☀️🌧️🥶🥵 The when-to-go-where map: the best month of travel visualizer</h3>
+<h3>☀️🌧️🥶🥵   <i>WHEN-to-go-WHERE-map</i></h3>
 
 <input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()">I already know where to go, help me pick the best month!
 
-<span id="value" style="display: inline-block; text-align: right;">Janurary</span>
+<!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
 
 
 <br>
@@ -197,11 +198,12 @@
 
   // add right-click behaviour
   var svg_chart = d3.select("#chart")
+    // .attr("opacity", "100%")
     .append("svg")
-      .attr("width", 360)
-      .attr("height", 360)
+      .attr("width", 260)
+      .attr("height", 260)
     .append("g")
-      .attr("transform", "translate(30,30)");
+      .attr("transform", "translate(30,35)");
 
   var debug;
 
@@ -228,7 +230,7 @@
         }
         // console.log(wetdays);
 
-        height = 300;
+        height = 200;
         // create axis
         svg_chart.selectAll("*").remove();
         var x = d3.scaleLinear()
@@ -252,6 +254,7 @@
           .attr('transform', 'translate(' + height + ',' + 0 + ')')
           .call(d3.axisRight(y_rain));
 
+
         svg_chart.selectAll("mybar")
           .data(climate_data)
           .enter()
@@ -263,10 +266,11 @@
             .attr("fill", "#66b6d2")
             .attr("style", "stroke-width:1; stroke:#1e7898;");
 
+        // Temperatures
         svg_chart.append("path")
           .datum(climate_data)
           .attr("fill", "none")
-          .attr("stroke", "#85e085")
+          .attr("stroke", "#003399")
           .attr("stroke-width", 2)
           .attr("d", d3.line()
             .x(d => x(d.month))
@@ -281,8 +285,52 @@
             .x(d => x(d.month))
             .y(d => y_temp(d.maxtemp))
           );
+        svg_chart.selectAll("myCircles")
+          .data(climate_data)
+          .enter()
+          .append("circle")
+            .attr("fill", "#003399")
+            // .attr("stroke", "#ffffff00")
+            .attr("cx", d => x(d.month))
+            .attr("cy", d => y_temp(d.mintemp))
+            .attr("r", 3)
+        svg_chart.selectAll("myCircles")
+          .data(climate_data)
+          .enter()
+          .append("circle")
+            .attr("fill", "#b30000")
+            // .attr("stroke", "#ffffff00")
+            .attr("cx", d => x(d.month))
+            .attr("cy", d => y_temp(d.maxtemp))
+            .attr("r", 3)
+        
+        // add label
+        svg_chart.selectAll(".text")
+          .data(climate_data)
+          .enter()        
+          .append("text")
+          .attr("class","caption")
+          .attr("text-anchor", "middle")
+          .attr("x", height / 2)
+          .attr("y", -20)
+          .attr("dy", ".2em")
+          .text("📍 " + lat.toFixed(2) + "°N, " + lng.toFixed(2) + "°E");  
 
-
+        svg_chart.append("text")
+          .attr("class", "x label")
+          // .attr("text-anchor", "end")
+          .attr("x", 2)
+          .attr("y", 5)
+          .attr("font-size", "10")
+          .text("Temp.(°C)");
+        
+        svg_chart.append("text")
+          .attr("class", "x label")
+          .attr("text-anchor", "end")
+          .attr("x", height - 2)
+          .attr("y", 5)
+          .attr("font-size", "10")
+          .text("Precip.(mm/day)");
       }
       map.on('click', onMapClick);
     }
