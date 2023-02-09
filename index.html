@@ -85,6 +85,9 @@
         #checkbox{
           margin-left: 20px;
         }
+        /* #checkbox-caption{
+          margin-left: 20px;
+        } */
         #chart{
           position: absolute;
           right: 10px;
@@ -98,13 +101,41 @@
           border: 2px solid rgba(0,0,0,0.2);
           background-clip: padding-box;
         }
+
+        .close {
+          position: absolute;
+          right: 20px;
+          top: 120px;
+          width: 5px;
+          height: 5px;
+          opacity: 0.3;
+          z-index: 1001;
+        }
+        .close:hover {
+          opacity: 1;
+        }
+        .close:before, .close:after {
+          position: absolute;
+          left: 0px;
+          content: ' ';
+          height: 10px;
+          width: 2px;
+          background-color: #333;
+        }
+        .close:before {
+          transform: rotate(45deg);
+        }
+        .close:after {
+          transform: rotate(-45deg);
+        }
     </style>
 </head>
 <body>
 
 <h3>☀️🌧️🥶🥵   <i>WHEN-to-go-WHERE-map</i></h3>
 
-<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()">I already know where to go, help me pick the best month!
+<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()">
+<span id="checkbox-caption">I already know where to go, help me pick the best month!</span>
 
 <!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
 
@@ -115,6 +146,8 @@
 <div id="slider"></div> 
 <div id="map"></div>
 <div id="chart"></div>
+<a href="#" onclick="document.getElementById('chart').style.display = 'none'" class="close"></a> 
+
 
 
 
@@ -232,6 +265,7 @@
 
         height = 200;
         // create axis
+        document.getElementById('chart').style.display = 'block'
         svg_chart.selectAll("*").remove();
         var x = d3.scaleLinear()
           .domain([0.5,13.5])
