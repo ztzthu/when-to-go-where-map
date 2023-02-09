@@ -30,7 +30,7 @@
           top: 100px;
           /* height: 90vh;  */
           bottom: 0;
-          z-index: 1;
+          z-index: 2;
           /* margin-top: 0.5em; */
         }
         body { 
@@ -85,20 +85,36 @@
         #checkbox{
           margin-left: 20px;
         }
+        #chart{
+          position: absolute;
+          right: 10px;
+          top: 110px;
+          width: 360px;
+          height: 360px;
+          z-index: 1000;
+          background-color: #fff;
+          border-radius: 2px;
+          border: 2px solid rgba(0,0,0,0.2);
+          background-clip: padding-box;
+        }
     </style>
 </head>
 <body>
 
 <h3>☀️🌧️🥶🥵 The when-to-go-where map: the best month of travel visualizer</h3>
-<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()">I already know where to go, help me find the best month.
+
+<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()">I already know where to go, help me pick the best month!
+
+<span id="value" style="display: inline-block; text-align: right;">Janurary</span>
+
 
 <br>
 
 
-<!-- <div id="slider" style="display: inline-block; width: 80%;"></div>  -->
 <div id="slider"></div> 
-<!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
 <div id="map"></div>
+<div id="chart"></div>
+
 
 
 <script>
@@ -173,7 +189,105 @@
 
 
             });
+
+
+
+
   }
+
+  // add right-click behaviour
+  var svg_chart = d3.select("#chart")
+    .append("svg")
+      .attr("width", 360)
+      .attr("height", 360)
+    .append("g")
+      .attr("transform", "translate(30,30)");
+
+  var debug;
+
+  d3.csv("./data/all_score.csv", 
+    function(data){
+      function onMapClick(e){
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+        // map precision 0.5 by 0.5
+        var intlat = parseInt(lat + 90) * 2;
+        var intlng = parseInt(lng + 180) * 2;
+        // var intlng = lng < 0 ? parseInt(lng + 360) : parseInt(lng);
+        // document.getElementById("value").innerHTML = intlat * 100000 + intlng;
+        var id_start = 12 * intlng + 12 * 720 * intlat;
+        var climate_data = [];
+        for(let m = 0; m < 13; m++){
+          var current_data = m < 12 ? data[m + id_start] : data[m - 12 + id_start];
+          // console.log(current_data)
+          climate_data.push({"month": m+1, 
+                             "mintemp": current_data.mintemp, 
+                             "maxtemp": current_data.maxtemp, 
+                             "precipitation": current_data.precipitation, 
+                             "wetdays" : current_data.wetdays});
+        }
+        // console.log(wetdays);
+
+        height = 300;
+        // create axis
+        svg_chart.selectAll("*").remove();
+        var x = d3.scaleLinear()
+          .domain([0.5,13.5])
+          .range([0, height]);
+        svg_chart.append("g")
+          .attr('transform', 'translate(' + 0 + ',' + height + ')')
+          .call(d3.axisBottom(x));
+
+
+        var y_temp = d3.scaleLinear()
+          .domain([d3.min(climate_data, d => parseFloat(d.mintemp)) - 5, d3.max(climate_data, d => parseFloat(d.maxtemp)) + 5])
+          .range([height, 0]);
+        svg_chart.append("g")
+          .call(d3.axisLeft(y_temp));
+
+        var y_rain = d3.scaleLinear()
+          .domain([0, Math.max(50, d3.max(climate_data, d => parseFloat(d.precipitation)) * 1.2)])
+          .range([height, 0]);
+        svg_chart.append("g")
+          .attr('transform', 'translate(' + height + ',' + 0 + ')')
+          .call(d3.axisRight(y_rain));
+
+        svg_chart.selectAll("mybar")
+          .data(climate_data)
+          .enter()
+          .append("rect")
+            .attr("x", d => x(d.month - 0.5) )
+            .attr("y", d => y_rain(d.precipitation))
+            .attr("width", (x(1) - x(0)) * 0.8)
+            .attr("height", d => height - y_rain(d.precipitation))
+            .attr("fill", "#66b6d2")
+            .attr("style", "stroke-width:1; stroke:#1e7898;");
+
+        svg_chart.append("path")
+          .datum(climate_data)
+          .attr("fill", "none")
+          .attr("stroke", "#85e085")
+          .attr("stroke-width", 2)
+          .attr("d", d3.line()
+            .x(d => x(d.month))
+            .y(d => y_temp(d.mintemp))
+          );
+        svg_chart.append("path")
+          .datum(climate_data)
+          .attr("fill", "none")
+          .attr("stroke", "#b30000")
+          .attr("stroke-width", 2)
+          .attr("d", d3.line()
+            .x(d => x(d.month))
+            .y(d => y_temp(d.maxtemp))
+          );
+
+
+      }
+      map.on('click', onMapClick);
+    }
+  )
+
 
   render_map(1);
 
