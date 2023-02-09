@@ -133,10 +133,10 @@
 </head>
 <body>
 
-<h3>☀️🌧️🥶🥵   <i>WHEN-to-go-WHERE-map</i></h3>
+<h3>☀️🌧️🥶🥵   <i>WHEN-to-go-WHERE-map</i>™</h3>
 
-<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()">
-<span id="checkbox-caption">I already know where to go, help me pick the best month!</span>
+<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()" checked>
+<label for="true">I already know where to go, tell me the best month!</label>
 
 <!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
 
@@ -199,7 +199,7 @@
                 }).addTo(map);
 
                 relativeMap.on('click', function (e) {
-                    if (e.value !== null) {
+                    if (isNaN(e.value) == false) {
                         let v = e.value.toFixed(2);
                         let html = (`<span class="popupText">Score of ` + month_name[month-1] + `: ${v}</span>`);
                         let popup = L.popup()
@@ -253,7 +253,14 @@
         // document.getElementById("value").innerHTML = intlat * 100000 + intlng;
         var id_start = 12 * intlng + 12 * 720 * intlat;
         var climate_data = [];
-        for(let m = 0; m < 13; m++){
+
+        // invalid data
+        if(isNaN(data[id_start].mintemp)){
+          svg_chart.selectAll("*").remove();
+          document.getElementById('chart').style.display = 'none';
+          return 0;
+        }
+        for(let m = 0; m < 12; m++){
           var current_data = m < 12 ? data[m + id_start] : data[m - 12 + id_start];
           // console.log(current_data)
           climate_data.push({"month": m+1, 
@@ -269,18 +276,27 @@
         document.getElementById('chart').style.display = 'block'
         svg_chart.selectAll("*").remove();
         var x = d3.scaleLinear()
-          .domain([0.5,13.5])
+          .domain([0.5,12.5])
           .range([0, height]);
         svg_chart.append("g")
           .attr('transform', 'translate(' + 0 + ',' + height + ')')
-          .call(d3.axisBottom(x));
+          .attr('class', 'xAxis')
+          .call(d3.axisBottom(x)
+            // .ticks(d3.timeMonth.every(1))
+            // .tickFormat(d3.timeFormat("%b"))
+          )
 
 
         var y_temp = d3.scaleLinear()
-          .domain([d3.min(climate_data, d => parseFloat(d.mintemp)) - 5, d3.max(climate_data, d => parseFloat(d.maxtemp)) + 5])
+          .domain([d3.min(climate_data, d => parseFloat(d.mintemp)) - 10, d3.max(climate_data, d => parseFloat(d.maxtemp)) + 10])
           .range([height, 0]);
         svg_chart.append("g")
+          .attr('class', 'yAxisTemp')
           .call(d3.axisLeft(y_temp));
+
+        // svg_chart.selectAll(".yAxisTemp").transition()
+        //   .duration(3000)
+        //   .call(y_temp);
 
         var y_rain = d3.scaleLinear()
           .domain([0, Math.max(50, d3.max(climate_data, d => parseFloat(d.precipitation)) * 1.2)])
@@ -294,7 +310,7 @@
           .data(climate_data)
           .enter()
           .append("rect")
-            .attr("x", d => x(d.month - 0.5) )
+            .attr("x", d => x(d.month - 0.4) )
             .attr("y", d => y_rain(d.precipitation))
             .attr("width", (x(1) - x(0)) * 0.8)
             .attr("height", d => height - y_rain(d.precipitation))
@@ -304,6 +320,7 @@
         // Temperatures
         svg_chart.append("path")
           .datum(climate_data)
+          .attr("class","lineTemp")
           .attr("fill", "none")
           .attr("stroke", "#003399")
           .attr("stroke-width", 2)
@@ -313,6 +330,7 @@
           );
         svg_chart.append("path")
           .datum(climate_data)
+          .attr("class","lineTemp")
           .attr("fill", "none")
           .attr("stroke", "#b30000")
           .attr("stroke-width", 2)
@@ -338,6 +356,18 @@
             .attr("cx", d => x(d.month))
             .attr("cy", d => y_temp(d.maxtemp))
             .attr("r", 3)
+
+        // add wet days
+        svg_chart.selectAll(".text")
+          .data(climate_data)
+          .enter()        
+          .append("text")
+          .attr("class","caption")
+          .attr("text-anchor", "middle")
+          .attr("x", d => x(d.month))
+          .attr("y", height - 3)
+          .attr("font-size", "10")
+          .text(d => parseInt(d.wetdays));  
         
         // add label
         svg_chart.selectAll(".text")
@@ -357,7 +387,7 @@
           .attr("x", 2)
           .attr("y", 5)
           .attr("font-size", "10")
-          .text("Temp.(°C)");
+          .text("Max/min Temp.(°C)");
         
         svg_chart.append("text")
           .attr("class", "x label")
@@ -365,7 +395,24 @@
           .attr("x", height - 2)
           .attr("y", 5)
           .attr("font-size", "10")
-          .text("Precip.(mm/day)");
+          .text("Precip.(mm)");
+
+        svg_chart.append("text")    
+          .attr("class","wetdays-label")
+          .attr("text-anchor", "middle")
+          .attr("x", height / 2)
+          .attr("y", height - 15)
+          .attr("font-size", "10")
+          .attr("style", "italics")
+          .text("Wet days");
+
+        svg_chart.append("text")
+          .attr("class", "x label")
+          .attr("text-anchor", "end")
+          .attr("x", 0)
+          .attr("y", height + 16)
+          .attr("font-size", "10")
+          .text("Month");
       }
       map.on('click', onMapClick);
     }
