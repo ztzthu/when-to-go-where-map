@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>When-to-go-where Map : Visualization of the best travel month</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
-    integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
-    crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css" integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14=" crossorigin="" />
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="https://unpkg.com/d3-simple-slider"></script>
 
-    <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
-        integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
-        crossorigin="">
+    <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js" integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg=" crossorigin="">
     </script>
-    <script src="https://npmcdn.com/geotiff@0.3.6/dist/geotiff.js"></script> 
+    <script src="https://npmcdn.com/geotiff@0.3.6/dist/geotiff.js"></script>
     <script src="https://ihcantabria.github.io/Leaflet.CanvasLayer.Field/dist/leaflet.canvaslayer.field.js"></script>
     <!-- <script type="module" src="canvaslayer/_main.js"></script> -->
 
@@ -21,569 +18,615 @@
     <!-- <script src="data/world.js"></script> -->
 
     <!-- No zoom in -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
     <style>
-        #map { 
-          position: absolute;
-          width: 100%; 
-          top: 100px;
-          /* height: 90vh;  */
-          bottom: 0;
-          z-index: 2;
-          /* margin-top: 0.5em; */
+        #map {
+            position: absolute;
+            width: 100%;
+            top: 100px;
+            /* height: 90vh;  */
+            bottom: 0;
+            z-index: 2;
+            /* margin-top: 0.5em; */
         }
-        body { 
-          font: 16px/1.4 "Helvetica Neue", Arial, sans-serif;
-          margin: 0; padding: 0;
+        
+        body {
+            font: 16px/1.4 "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
+        
         html {
-          margin: 0; padding: 0;
+            margin: 0;
+            padding: 0;
         }
-        .ghbtns { position: relative; top: 4px; margin-left: 5px; }
-        a { color: #0077ff; }
+        
+        .ghbtns {
+            position: relative;
+            top: 4px;
+            margin-left: 5px;
+        }
+        
+        a {
+            color: #0077ff;
+        }
+        
         .info {
             padding: 6px 8px;
             font: 14px/16px Arial, Helvetica, sans-serif;
             background: white;
-            background: rgba(255,255,255,0.8);
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             border-radius: 5px;
         }
-        h3{
+        
+        h3 {
             padding-left: 20px;
             margin-bottom: 10px;
         }
-        .checkbox{
-          padding-left: 1em;
+        
+        .checkbox {
+            padding-left: 1em;
         }
-        .info h4  {
+        
+        .info h4 {
             margin: 0 0 5px;
             color: #777;
         }
-        .collapse{
+        
+        .collapse {
             color: rgb(0, 00, 255);
             text-decoration: underline;
         }
-        .paragraph{
+        
+        .paragraph {
             margin-right: 20px;
             margin-left: 20px;
             border-left: 4px solid grey;
             padding-left: 10px;
         }
-        .leaflet-popup-content{
-          margin: 10px 20px 10px 20px;
+        
+        .leaflet-popup-content {
+            margin: 10px 20px 10px 20px;
         }
-        #slider{
-          position: absolute; 
-          bottom: 10px;
-          left: 10px;
-          width: 280px;
-          z-index: 1000;
-          background-color: #fff;
-          height: 60px;
-          border-radius: 2px;
-          border: 2px solid rgba(0,0,0,0.2);
-          background-clip: padding-box;
+        
+        #slider {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 280px;
+            z-index: 1000;
+            background-color: #fff;
+            height: 60px;
+            border-radius: 2px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            background-clip: padding-box;
         }
-        #checkbox{
-          margin-left: 20px;
+        
+        #checkbox {
+            margin-left: 20px;
         }
         /* #checkbox-caption{
           margin-left: 20px;
         } */
-        #chart{
-          position: absolute;
-          right: 10px;
-          top: 110px;
-          width: 260px;
-          height: 260px;
-          z-index: 1000;
-          background-color: #fff;
-          /* opacity: 0%; */
-          border-radius: 2px;
-          border: 2px solid rgba(0,0,0,0.2);
-          background-clip: padding-box;
-          display: none;
+        
+        #chart {
+            position: absolute;
+            right: 10px;
+            top: 110px;
+            width: 260px;
+            height: 260px;
+            z-index: 1000;
+            background-color: #fff;
+            /* opacity: 0%; */
+            border-radius: 2px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            background-clip: padding-box;
+            display: none;
         }
-        #chartpopup{
-          position: relative;
-          /* right: 10px;
+        
+        #chartpopup {
+            position: relative;
+            /* right: 10px;
           top: 110px;
           width: 260px;
           height: 260px;
           z-index: 1000; */
-          width: 100px;
-          height: 100px;
-          background-color: #fff;
-          /* opacity: 0%; */
-          border-radius: 2px;
-          border: 2px solid rgba(0,0,0,0.2);
-          background-clip: padding-box;
-          display: none;
+            width: 100px;
+            height: 100px;
+            background-color: #fff;
+            /* opacity: 0%; */
+            border-radius: 2px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            background-clip: padding-box;
+            display: none;
         }
-
+        
         .close {
-          position: absolute;
-          right: 20px;
-          top: 120px;
-          width: 5px;
-          height: 5px;
-          opacity: 0.3;
-          z-index: 1001;
+            position: absolute;
+            right: 20px;
+            top: 120px;
+            width: 5px;
+            height: 5px;
+            opacity: 0.3;
+            z-index: 1001;
         }
+        
         .close:hover {
-          opacity: 1;
+            opacity: 1;
         }
-        .close:before, .close:after {
-          position: absolute;
-          left: 0px;
-          content: ' ';
-          height: 10px;
-          width: 2px;
-          background-color: #333;
-        }
-        .close:before {
-          transform: rotate(45deg);
-        }
+        
+        .close:before,
         .close:after {
-          transform: rotate(-45deg);
+            position: absolute;
+            left: 0px;
+            content: ' ';
+            height: 10px;
+            width: 2px;
+            background-color: #333;
+        }
+        
+        .close:before {
+            transform: rotate(45deg);
+        }
+        
+        .close:after {
+            transform: rotate(-45deg);
         }
     </style>
 </head>
+
 <body>
 
-<h3>☀️🌧️🥶🥵   <i>WHEN-to-go-WHERE-map</i>™</h3>
+    <h3>☀️🌧️🥶🥵 <i>WHEN-to-go-WHERE-map</i>™</h3>
 
-<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()" checked>
-<label for="true">I already know where to go, tell me the best month!</label>
+    <input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()" checked>
+    <label for="true">I already know where to go, tell me the best month!</label>
 
-<!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
-
-
-<br>
+    <!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
 
 
-<div id="slider"></div> 
-<div id="map"></div>
-<div id="chart"></div>
-<a href="#" onclick="document.getElementById('chart').style.display = 'none'" class="close"></a> 
+    <br>
+
+
+    <div id="slider"></div>
+    <div id="map"></div>
+    <div id="chart"></div>
+    <a href="#" onclick="document.getElementById('chart').style.display = 'none'" class="close"></a>
 
 
 
 
-<script>
+    <script>
+        // Basemap
+        var map = L.map("map").setView([50, 20], 3);
+        // var url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
+        var url = 'https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}@2x.png'
+        L.tileLayer(url, {
+            attribution: "OSM & Carto",
+            subdomains: "abcd",
+            maxZoom: 6
+        }).addTo(map);
 
-  // Basemap
-  var map = L.map("map").setView([50, 20], 3);
-  var url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
-  L.tileLayer(url, {
-    attribution: "OSM & Carto",
-    subdomains: "abcd",
-    maxZoom: 6
-  }).addTo(map);
+        var month_name = ['Janurary', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
-  var month_name = ['Janurary', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        var relativeMap;
 
-  var relativeMap;
+        var current_month;
+        var slider_lock = -1;
 
-  var current_month;
+        function render_map(month) {
 
-  function render_map(month){
-    if (typeof month ==="undefined"){
-      month = current_month;
-    }
-    current_month = month;
-    if (typeof relativeMap !== 'undefined'){
-      map.removeLayer(relativeMap);
-    }
+            if (slider_lock > 0) {
+                slider_lock = month;
+                return 0;
+            }
+            slider_lock = month;
 
-    const checkBox = document.getElementById('checkbox');
+            if (typeof month === "undefined") {
+                month = current_month;
+            }
+            current_month = month;
+            if (typeof relativeMap !== 'undefined') {
+                map.removeLayer(relativeMap);
+            }
 
-    if(checkBox.checked){
-      var tiff = "https://ztzthu.github.io/when-to-go-where-map/data/relative_" + month + ".tif";
-    } else {
-      var tiff = "https://ztzthu.github.io/when-to-go-where-map/data/absolute_" + month + ".tif";
-    }
+            const checkBox = document.getElementById('checkbox');
 
-    d3.request(tiff).responseType('arraybuffer').get(
-            function (error, tiffData) {
-                let s = L.ScalarField.fromGeoTIFF(tiffData.response);
-                // s.setSpatialMask(world_mask["features"][5]);
-                // console.log(s.range)
+            if (checkBox.checked) {
+                var tiff = "https://ztzthu.github.io/when-to-go-where-map/data/relative_" + month + ".tif";
+            } else {
+                var tiff = "https://ztzthu.github.io/when-to-go-where-map/data/absolute_" + month + ".tif";
+            }
 
-                relativeMap = L.canvasLayer.scalarField(s, {
-                    opacity: 0.5,
-                    color: chroma.scale(['#272ad7', '#27d7d7', '#2ad727', '#d7d727', '#d73027']).domain([0, 100]),
-                    interpolate: false
-                }).addTo(map);
+            d3.request(tiff).responseType('arraybuffer').get(
+                function(error, tiffData) {
+                    let s = L.ScalarField.fromGeoTIFF(tiffData.response);
+                    // s.setSpatialMask(world_mask["features"][5]);
+                    // console.log(s.range)
 
-                relativeMap.on('click', function (e) {
-                    if (isNaN(e.value) == false) {
-                        let v = e.value.toFixed(2);
-                        let html = (`<span class="popupText">Score of ` + month_name[month-1] + `: ${v}</span><br><div id="chartpopup"></div>`);
-                        let popup = L.popup()
-                            .setLatLng(e.latlng)
-                            .setContent(html)
-                            .openOn(map);
-                    }
+                    relativeMap = L.canvasLayer.scalarField(s, {
+                        opacity: 0.55,
+                        color: chroma.scale(['#272ad7', '#27d7d7', '#2ad727', '#d7d727', '#d73027']).domain([0, 100]),
+                        interpolate: false
+                    }).addTo(map);
+
+                    relativeMap.on('click', function(e) {
+                        if (isNaN(e.value) == false) {
+                            let v = e.value.toFixed(2);
+                            let html = (`<span class="popupText">Score of ` + month_name[month - 1] + `: ${v}</span><br><div id="chartpopup"></div>`);
+                            let popup = L.popup()
+                                .setLatLng(e.latlng)
+                                .setContent(html)
+                                .openOn(map);
+                        }
+                    });
+                    // map.fitBounds(layer.getBounds());
+
+
+
+
+                    // Layer Control
+                    // L.control.layers({
+                    //     "December": relativeMap,
+                    //     "December": relativeMap
+                    // }, {}, {
+                    //     position: 'topright',
+                    //     collapsed: false
+                    //     }).addTo(map);
+
+
                 });
-                // map.fitBounds(layer.getBounds());
 
 
+            slider_lock = -1;
 
-
-                // Layer Control
-                // L.control.layers({
-                //     "December": relativeMap,
-                //     "December": relativeMap
-                // }, {}, {
-                //     position: 'topright',
-                //     collapsed: false
-                //     }).addTo(map);
-
-
-            });
-
-
-
-
-  }
-
-  // add right-click behaviour
-  var svg_chart = d3.select("#chart")
-    // .attr("opacity", "100%")
-    .append("svg")
-      .attr("width", 260)
-      .attr("height", 260)
-    .append("g")
-      .attr("transform", "translate(30,35)");
-
-  d3.csv("./data/all_score.csv", 
-    function(data){
-
-      var height = 200;
-
-      // define axis
-
-      // define x axis
-      var x = d3.scaleLinear()
-        .domain([0.5,12.5])
-        .range([0, height]);
-
-      // add mouse interactive
-      var focus_rect = 
-        svg_chart.append('rect')
-          .style("fill", "#dddddd")
-          .attr("height", height - 10)
-          .attr("width", x(1)-x(0))
-          .attr("x", x(current_month-0.5))
-          .attr("y", 10);
-
-      // add x axis
-      svg_chart.append("g")
-        .attr('transform', 'translate(' + 0 + ',' + height + ')')
-        .attr('class', 'xAxis')
-        .call(d3.axisBottom(x)
-          // .ticks(d3.timeMonth.every(1))
-          // .tickFormat(d3.timeFormat("%b"))
-        )
-    
-      // define y temerature axis
-      var y_temp = d3.scaleLinear().range([height, 0]);
-      var y_temp_axis = d3.axisLeft().scale(y_temp);
-      // add y temperature axis
-      svg_chart.append("g")
-        .attr('class', 'yAxisTemp');
-
-      // define y rain axis
-      var y_rain = d3.scaleLinear().range([height, 0]);
-      var y_rain_axis = d3.axisRight().scale(y_rain);
-      // add y rain axis
-      svg_chart.append("g")
-        .attr('transform', 'translate(' + height + ',' + 0 + ')')
-        .attr('class', 'yAxisRain');
-
-
-      // initiate chart elements
-      // var rainbar = svg_chart.selectAll(".rainbar")
-      //     .data(climate_data);
-
-      // add label
-      var caption_label = svg_chart.append("text")
-          .attr("class", "caption")
-          .attr("text-anchor", "middle")
-          .attr("x", height / 2)
-          .attr("y", -20)
-          .attr("dy", ".2em")
-
-      svg_chart.append("text")
-        .attr("class", "x label")
-        // .attr("text-anchor", "end")
-        .attr("x", 2)
-        .attr("y", 5)
-        .attr("font-size", "10")
-        .text("Max/min Temp.(°C)");
-      
-      svg_chart.append("text")
-        .attr("class", "x label")
-        .attr("text-anchor", "end")
-        .attr("x", height - 2)
-        .attr("y", 5)
-        .attr("font-size", "10")
-        .text("Precip.(mm)");
-
-
-
-      svg_chart.append("text")
-        .attr("class", "x label")
-        .attr("text-anchor", "end")
-        .attr("x", 0)
-        .attr("y", height + 16)
-        .attr("font-size", "10")
-        .text("Month");
-
-      var transition_time = 0;
-
-
-      function onMapClick(e){
-        var lat = e.latlng.lat;
-        var lng = e.latlng.lng;
-        // map precision 0.5 by 0.5
-        var intlat = parseInt(lat + 90) * 2;
-        var intlng = parseInt(lng + 180) * 2;
-        // var intlng = lng < 0 ? parseInt(lng + 360) : parseInt(lng);
-        // document.getElementById("value").innerHTML = intlat * 100000 + intlng;
-        var id_start = 12 * intlng + 12 * 720 * intlat;
-        var climate_data = [];
-
-        // invalid data
-        if(isNaN(data[id_start].mintemp)){
-          // svg_chart.selectAll("*").remove();
-          document.getElementById('chart').style.display = 'none';
-          return 0;
         }
-        for(let m = 0; m < 12; m++){
-          var current_data = m < 12 ? data[m + id_start] : data[m - 12 + id_start];
-          // console.log(current_data)
-          climate_data.push({"month": m+1, 
-                             "mintemp": current_data.mintemp, 
-                             "maxtemp": current_data.maxtemp, 
-                             "precipitation": current_data.precipitation, 
-                             "wetdays" : current_data.wetdays});
-        }
-        // console.log(wetdays);
 
-        document.getElementById('chart').style.display = 'block'
-        // svg_chart.selectAll("*").remove();
+        // add right-click behaviour
+        var svg_chart = d3.select("#chart")
+            // .attr("opacity", "100%")
+            .append("svg")
+            .attr("width", 260)
+            .attr("height", 260)
+            .append("g")
+            .attr("transform", "translate(30,35)");
 
 
+        var height = 200;
 
-
-        // define y temeprature axis
-        y_temp.domain([d3.min(climate_data, d => parseFloat(d.mintemp)) - 10, d3.max(climate_data, d => parseFloat(d.maxtemp)) + 10]);
-        // add transition
-        svg_chart.selectAll(".yAxisTemp")
-          .transition()
-          .duration(transition_time)
-          .call(y_temp_axis);
-
-        // define y rain axis
-        y_rain.domain([0, Math.max(50, d3.max(climate_data, d => parseFloat(d.precipitation)) * 1.2)])
-        // add transition
-        svg_chart.selectAll(".yAxisRain")
-          .transition()
-          .duration(transition_time)
-          .call(y_rain_axis);
-
-
-        // add rain bar,  transisition
-        var rainbar = svg_chart.selectAll(".rainbar");
-        rainbar
-          .data(climate_data)
-          .enter()
-          .append("rect")
-            .attr("class", "rainbar")
-            .merge(rainbar)
-            .transition()
-            .duration(transition_time)
-            .attr("z-index", 1000)
-            .attr("x", d => x(d.month - 0.4) )
-            .attr("y", d => y_rain(d.precipitation))
-            .attr("width", (x(1) - x(0)) * 0.8)
-            .attr("height", d => height - y_rain(d.precipitation))
-            .attr("fill", "#66b6d2")
-            .attr("style", "stroke-width:1; stroke:#1e7898;");
-
-        // min temperature
-        var mintempline = svg_chart.selectAll(".mintempline").data([climate_data]);
-        mintempline
-          .enter()
-          .append("path")
-            .merge(mintempline)
-            .transition()
-            .duration(transition_time)
-            .attr("class","mintempline")
-            .attr("fill", "none")
-            .attr("stroke", "#003399")
-            .attr("stroke-width", 2)
-            .attr("d", d3.line()
-              .x(d => x(d.month))
-              .y(d => y_temp(d.mintemp))
-            );
-
-        // max temperature
-        var maxtempline = svg_chart.selectAll(".maxtempline").data([climate_data]);
-        maxtempline
-          .enter()
-          .append("path")
-            .merge(maxtempline)
-            .transition()
-            .duration(transition_time)
-            .attr("class","maxtempline")
-            .attr("fill", "none")
-            .attr("stroke", "#b30000")
-            .attr("stroke-width", 2)
-            .attr("d", d3.line()
-              .x(d => x(d.month))
-              .y(d => y_temp(d.maxtemp))
-            );
-
-        var mintempcircle = svg_chart.selectAll(".mintempcircle")
-        mintempcircle
-          .data(climate_data)
-          .enter()
-          .append("circle")
-            .merge(mintempcircle)
-            .transition()
-            .duration(transition_time)
-            .attr("class", "mintempcircle")
-            .attr("fill", "#003399")
-            // .attr("stroke", "#ffffff00")
-            .attr("cx", d => x(d.month))
-            .attr("cy", d => y_temp(d.mintemp))
-            .attr("r", 3)
-        var maxtempcircle = svg_chart.selectAll(".maxtempcircle")
-        maxtempcircle
-          .data(climate_data)
-          .enter()
-          .append("circle")
-            .merge(maxtempcircle)
-            .transition()
-            .duration(transition_time)
-            .attr("class", "maxtempcircle")
-            .attr("fill", "#b30000")
-            // .attr("stroke", "#ffffff00")
-            .attr("cx", d => x(d.month))
-            .attr("cy", d => y_temp(d.maxtemp))
-            .attr("r", 3)
-
-
-
-        // add wet days
-        svg_chart.selectAll(".wetdaysbar").remove();
-        var wetdaysbar = svg_chart.selectAll(".wetdaysbar");
-        wetdaysbar
-          .data(climate_data)
-          .enter()        
-          .append("text")
-            // .transition()
-            // .duration(transition_time)
-            .attr("class", "wetdaysbar")
-            .attr("text-anchor", "middle")
-            .attr("x", d => x(d.month))
-            .attr("y", height - 3)
-            .attr("font-size", "10")
-            .text(d => parseInt(d.wetdays));  
-
-        
-        // add wet days label
-        svg_chart.selectAll(".wetdays-label").remove();
-        svg_chart.append("text")    
-          .attr("class","wetdays-label")
-          .attr("text-anchor", "middle")
-          .attr("x", height / 2)
-          .attr("y", height - 15)
-          .attr("font-size", "10")
-          .attr("style", "italics")
-          .text("Wet days");
-        
-        // add label
-        caption_label.text("📍 " + lat.toFixed(2) + "°N, " + lng.toFixed(2) + "°E");  
-
-
+        // define x axis
+        var x = d3.scaleLinear()
+            .domain([0.5, 12.5])
+            .range([0, height]);
 
         // add mouse interactive
-        svg_chart.append('rect')
-          .style("fill", "none")
-          .style("pointer-events", "all")
-          .attr("x", 1)
-          .attr("y", 0)
-          .attr("width", height - 2)
-          .attr("height", height )
-          // .on("mouseover", mouseover)
-          .on("mousemove", mousemove)
-          .on("mouseout", mouseout);
+        var focus_rect =
+            svg_chart.append('rect')
+            .style("fill", "#dddddd")
+            .attr("height", height - 10)
+            .attr("width", x(1) - x(0))
+            .attr("y", 10);
+
+        var cold_line =
+            svg_chart.append('line')
+            .style("stroke", "#003399")
+            // .style("stroke-width", 2)
+            .attr("x1", x(0.5))
+            .attr("x2", x(12.5));
 
 
-        function mouseover(){
-          focus_rect.style("opacity", 1);
-        }
+        d3.csv("./data/all_score.csv",
+            function(data) {
 
-        function mousemove(){
-          var x0 = x.invert(d3.mouse(this)[0]);
-          var x0_min = Math.floor(x0 + 0.5) - 0.5 ;
-          focus_rect.attr("x", x(x0_min))
-            .attr("width", x(1)-x(0));
-        }
+                // add x axis
+                svg_chart.append("g")
+                    .attr('transform', 'translate(' + 0 + ',' + height + ')')
+                    .attr('class', 'xAxis')
+                    .call(d3.axisBottom(x)
+                        // .ticks(d3.timeMonth.every(1))
+                        // .tickFormat(d3.timeFormat("%b"))
+                    )
 
-        function mouseout(){
-          focus_rect.attr("x", x(current_month-0.5));
-        }
+                // define y temerature axis
+                var y_temp = d3.scaleLinear().range([height, 0]);
+                var y_temp_axis = d3.axisLeft().scale(y_temp);
+                // add y temperature axis
+                svg_chart.append("g")
+                    .attr('class', 'yAxisTemp');
 
-        transition_time = 1000;
-
-      }
-      map.on('click', onMapClick);
-    }
-  )
-
-
-  
-  current_date = new Date();
-  current_month = current_date.getMonth()+1;
-  render_map(current_month);
-
-  var slider = d3
-    .sliderHorizontal()
-    .min(1)
-    .max(12)
-    .step(1)
-    .value(current_month)
-    .width(240)
-    .displayValue(false)
-    .on('onchange', (val) => {
-      // d3.select('#value').text(val);
-      // map.eachLayer(function (layer) {
-      //     map.removeLayer(layer);
-      // });
-      // d3.select('#value').text(month_name[val-1])
-      render_map(val);
-    });
-
-  d3.select('#slider')
-    .append('svg')
-    // .attr('width', '')
-    // .attr('height', '70')
-    .append('g')
-    .attr('transform', 'translate(20,15)')
-    .call(slider);
-
-  
-</script>
+                // define y rain axis
+                var y_rain = d3.scaleLinear().range([height, 0]);
+                var y_rain_axis = d3.axisRight().scale(y_rain);
+                // add y rain axis
+                svg_chart.append("g")
+                    .attr('transform', 'translate(' + height + ',' + 0 + ')')
+                    .attr('class', 'yAxisRain');
 
 
-<!-- <script>
+                // initiate chart elements
+                // var rainbar = svg_chart.selectAll(".rainbar")
+                //     .data(climate_data);
+
+                // add label
+                var caption_label = svg_chart.append("text")
+                    .attr("class", "caption")
+                    .attr("text-anchor", "middle")
+                    .attr("x", height / 2)
+                    .attr("y", -20)
+                    .attr("dy", ".2em")
+
+                svg_chart.append("text")
+                    .attr("class", "x label")
+                    // .attr("text-anchor", "end")
+                    .attr("x", 2)
+                    .attr("y", 5)
+                    .attr("font-size", "10")
+                    .text("Max/min Temp.(°C)");
+
+                svg_chart.append("text")
+                    .attr("class", "x label")
+                    .attr("text-anchor", "end")
+                    .attr("x", height - 2)
+                    .attr("y", 5)
+                    .attr("font-size", "10")
+                    .text("Precip.(mm)");
+
+
+
+                svg_chart.append("text")
+                    .attr("class", "x label")
+                    .attr("text-anchor", "end")
+                    .attr("x", 0)
+                    .attr("y", height + 16)
+                    .attr("font-size", "10")
+                    .text("Month");
+
+                var transition_time = 0;
+
+
+                function onMapClick(e) {
+                    var lat = e.latlng.lat;
+                    var lng = e.latlng.lng;
+                    // map precision 0.5 by 0.5
+                    var intlat = parseInt(lat + 90 - 0.375) * 2;
+                    var intlng = parseInt(lng + 180 + 0.5) * 2;
+                    // var intlng = lng < 0 ? parseInt(lng + 360) : parseInt(lng);
+                    // document.getElementById("value").innerHTML = intlat * 100000 + intlng;
+                    var id_start = 12 * intlng + 12 * 720 * intlat;
+                    var climate_data = [];
+
+                    // invalid data
+                    if (isNaN(data[id_start].mintemp)) {
+                        // svg_chart.selectAll("*").remove();
+                        document.getElementById('chart').style.display = 'none';
+                        return 0;
+                    }
+                    for (let m = 0; m < 12; m++) {
+                        var current_data = m < 12 ? data[m + id_start] : data[m - 12 + id_start];
+                        // console.log(current_data)
+                        climate_data.push({
+                            "month": m + 1,
+                            "mintemp": current_data.mintemp,
+                            "maxtemp": current_data.maxtemp,
+                            "precipitation": current_data.precipitation,
+                            "wetdays": current_data.wetdays
+                        });
+                    }
+                    // console.log(wetdays);
+
+                    document.getElementById('chart').style.display = 'block'
+                        // svg_chart.selectAll("*").remove();
+
+                    focus_rect.attr("x", x(current_month - 0.5))
+
+                    // define y temeprature axis
+                    y_temp.domain([d3.min(climate_data, d => parseFloat(d.mintemp)) - 10, d3.max(climate_data, d => parseFloat(d.maxtemp)) + 10]);
+                    // add transition
+                    svg_chart.selectAll(".yAxisTemp")
+                        .transition()
+                        .duration(transition_time)
+                        .call(y_temp_axis);
+                    // add cold line
+                    cold_line
+                        .attr("y1", y_temp(10))
+                        .attr("y2", y_temp(10));
+
+                    // define y rain axis
+                    y_rain.domain([0, Math.max(50, d3.max(climate_data, d => parseFloat(d.precipitation)) * 1.2)])
+                        // add transition
+                    svg_chart.selectAll(".yAxisRain")
+                        .transition()
+                        .duration(transition_time)
+                        .call(y_rain_axis);
+
+
+                    // add rain bar,  transisition
+                    var rainbar = svg_chart.selectAll(".rainbar");
+                    rainbar
+                        .data(climate_data)
+                        .enter()
+                        .append("rect")
+                        .attr("class", "rainbar")
+                        .merge(rainbar)
+                        .transition()
+                        .duration(transition_time)
+                        .attr("z-index", 1000)
+                        .attr("x", d => x(d.month - 0.4))
+                        .attr("y", d => y_rain(d.precipitation))
+                        .attr("width", (x(1) - x(0)) * 0.8)
+                        .attr("height", d => height - y_rain(d.precipitation))
+                        .attr("fill", "#66b6d2")
+                        .attr("style", "stroke-width:1; stroke:#1e7898;");
+
+                    // min temperature
+                    var mintempline = svg_chart.selectAll(".mintempline").data([climate_data]);
+                    mintempline
+                        .enter()
+                        .append("path")
+                        .merge(mintempline)
+                        .transition()
+                        .duration(transition_time)
+                        .attr("class", "mintempline")
+                        .attr("fill", "none")
+                        .attr("stroke", "#003399")
+                        .attr("stroke-width", 2)
+                        .attr("d", d3.line()
+                            .x(d => x(d.month))
+                            .y(d => y_temp(d.mintemp))
+                        );
+
+                    // max temperature
+                    var maxtempline = svg_chart.selectAll(".maxtempline").data([climate_data]);
+                    maxtempline
+                        .enter()
+                        .append("path")
+                        .merge(maxtempline)
+                        .transition()
+                        .duration(transition_time)
+                        .attr("class", "maxtempline")
+                        .attr("fill", "none")
+                        .attr("stroke", "#b30000")
+                        .attr("stroke-width", 2)
+                        .attr("d", d3.line()
+                            .x(d => x(d.month))
+                            .y(d => y_temp(d.maxtemp))
+                        );
+
+                    var mintempcircle = svg_chart.selectAll(".mintempcircle")
+                    mintempcircle
+                        .data(climate_data)
+                        .enter()
+                        .append("circle")
+                        .merge(mintempcircle)
+                        .transition()
+                        .duration(transition_time)
+                        .attr("class", "mintempcircle")
+                        .attr("fill", "#003399")
+                        // .attr("stroke", "#ffffff00")
+                        .attr("cx", d => x(d.month))
+                        .attr("cy", d => y_temp(d.mintemp))
+                        .attr("r", 3)
+                    var maxtempcircle = svg_chart.selectAll(".maxtempcircle")
+                    maxtempcircle
+                        .data(climate_data)
+                        .enter()
+                        .append("circle")
+                        .merge(maxtempcircle)
+                        .transition()
+                        .duration(transition_time)
+                        .attr("class", "maxtempcircle")
+                        .attr("fill", "#b30000")
+                        // .attr("stroke", "#ffffff00")
+                        .attr("cx", d => x(d.month))
+                        .attr("cy", d => y_temp(d.maxtemp))
+                        .attr("r", 3)
+
+
+
+                    // add wet days
+                    svg_chart.selectAll(".wetdaysbar").remove();
+                    var wetdaysbar = svg_chart.selectAll(".wetdaysbar");
+                    wetdaysbar
+                        .data(climate_data)
+                        .enter()
+                        .append("text")
+                        // .transition()
+                        // .duration(transition_time)
+                        .attr("class", "wetdaysbar")
+                        .attr("text-anchor", "middle")
+                        .attr("x", d => x(d.month))
+                        .attr("y", height - 3)
+                        .attr("font-size", "10")
+                        .text(d => parseInt(d.wetdays));
+
+
+                    // add wet days label
+                    svg_chart.selectAll(".wetdays-label").remove();
+                    svg_chart.append("text")
+                        .attr("class", "wetdays-label")
+                        .attr("text-anchor", "middle")
+                        .attr("x", height / 2)
+                        .attr("y", height - 15)
+                        .attr("font-size", "10")
+                        .attr("style", "italics")
+                        .text("Wet days");
+
+                    // add label
+                    caption_label.text("📍 " + lat.toFixed(2) + "°N, " + lng.toFixed(2) + "°E");
+
+
+
+                    // add mouse interactive
+                    svg_chart.append('rect')
+                        .style("fill", "none")
+                        .style("pointer-events", "all")
+                        .attr("x", 1)
+                        .attr("y", 0)
+                        .attr("width", height - 2)
+                        .attr("height", height)
+                        // .on("mouseover", mouseover)
+                        .on("mousemove", mousemove)
+                        .on("mouseout", mouseout);
+
+
+                    function mouseover() {
+                        focus_rect.style("opacity", 1);
+                    }
+
+                    function mousemove() {
+                        var x0 = x.invert(d3.mouse(this)[0]);
+                        var x0_min = Math.floor(x0 + 0.5) - 0.5;
+                        focus_rect.attr("x", x(x0_min))
+                            .attr("width", x(1) - x(0));
+                    }
+
+                    function mouseout() {
+                        focus_rect.attr("x", x(current_month - 0.5));
+                    }
+
+                    transition_time = 1000;
+
+                }
+                map.on('click', onMapClick);
+            }
+        )
+
+
+
+        var current_date = new Date();
+        var current_month_today = current_date.getMonth() + 1;
+        render_map(current_month_today);
+
+        var slider = d3
+            .sliderHorizontal()
+            .min(1)
+            .max(12)
+            .step(1)
+            .value(current_month_today)
+            .width(240)
+            .displayValue(false)
+            .on('onchange', (val) => {
+                // d3.select('#value').text(val);
+                // map.eachLayer(function (layer) {
+                //     map.removeLayer(layer);
+                // });
+                // d3.select('#value').text(month_name[val-1])
+                render_map(val);
+            });
+
+        d3.select('#slider')
+            .append('svg')
+            // .attr('width', '')
+            // .attr('height', '70')
+            .append('g')
+            .attr('transform', 'translate(20,15)')
+            .call(slider);
+    </script>
+
+
+    <!-- <script>
 
   // Basemap
   var map = L.map("map").setView([50, 20], 4);
@@ -692,4 +735,5 @@
 </script> -->
 
 </body>
+
 </html>

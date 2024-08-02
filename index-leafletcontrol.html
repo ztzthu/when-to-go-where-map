@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>When-to-go-where Map : Visualization of the best travel month</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css"
+    integrity="sha256-sA+zWATbFveLLNqWO2gtiw3HL/lh1giY/Inf1BJ0z14="
+    crossorigin=""/>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
+
+    <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"
+        integrity="sha256-o9N1jGDZrf5tS+Ft4gbIK7mYMipq9lqpVJ91xHSyKhg="
+        crossorigin="">
+    </script>
+    <script src="https://npmcdn.com/geotiff@0.3.6/dist/geotiff.js"></script> 
+    <script src="https://ihcantabria.github.io/Leaflet.CanvasLayer.Field/dist/leaflet.canvaslayer.field.js"></script>
+    <!-- <script type="module" src="canvaslayer/_main.js"></script> -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+    <!-- <script src="data/world.js"></script> -->
+
+    <!-- No zoom in -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> 
+
+    <style>
+        #map { width: 100%; height: 80vh; margin-top: 0.5em;}
+        body { 
+          font: 16px/1.4 "Helvetica Neue", Arial, sans-serif;
+          margin: 0 px;
+        }
+        .ghbtns { position: relative; top: 4px; margin-left: 5px; }
+        a { color: #0077ff; }
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+        /* h3 {
+            margin: 1.5em 1.5em 10px;
+            color: #777;
+        } */
+        .info h4 {
+            margin: 0 0 5px;
+            color: #777;
+        }
+        .bottom {
+            /* position: -webkit-sticky; */
+            position: fixed;
+            width:100%;
+            bottom:0px;
+        }
+        .collapse{
+            color: rgb(0, 00, 255);
+            text-decoration: underline;
+        }
+        .paragraph{
+            margin-right: 20px;
+            margin-left: 20px;
+            border-left: 4px solid grey;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h3>☀️🌧️🥶🥵 The when-to-go-where map: the best month of travel visualizer</h3>
+<input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map(1)"><label for="relative"> I already know where to go.</label><br>
+
+<div id="slider" style="display: inline-block; width: 80%;"></div> 
+<!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
+<div id="map"></div>
+
+
+<script>
+
+  // Basemap
+  var map = L.map("map").setView([50, 20], 4);
+  var url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
+  L.tileLayer(url, {
+    attribution: "OSM & Carto",
+    subdomains: "abcd",
+    maxZoom: 6
+  }).addTo(map);
+
+
+
+  var month_name = ['Janurary', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+  var relativeMap;
+
+  function render_map(month){
+    if (typeof relativeMap !== 'undefined'){
+      map.removeLayer(relativeMap);
+    }
+
+    const checkBox = document.getElementById('checkbox');
+
+    if(checkBox.checked){
+      var tiff = "https://ztzthu.github.io/when-to-go-where-map/data/relative_" + month + ".tif";
+    } else {
+      var tiff = "https://ztzthu.github.io/when-to-go-where-map/data/absolute_" + month + ".tif";
+    }
+
+    d3.request(tiff).responseType('arraybuffer').get(
+            function (error, tiffData) {
+                let s = L.ScalarField.fromGeoTIFF(tiffData.response);
+                // s.setSpatialMask(world_mask["features"][5]);
+                console.log(s.range)
+
+                relativeMap = L.canvasLayer.scalarField(s, {
+                    opacity: 0.5,
+                    color: chroma.scale(['#272ad7', '#27d7d7', '#2ad727', '#d7d727', '#d73027']).domain([0, 100]),
+                    interpolate: false
+                }).addTo(map);
+
+                relativeMap.on('click', function (e) {
+                    if (e.value !== null) {
+                        let v = e.value.toFixed(2);
+                        let html = (`<span class="popupText">Score of ` + month_name[month-1] + `: ${v}</span>`);
+                        let popup = L.popup()
+                            .setLatLng(e.latlng)
+                            .setContent(html)
+                            .openOn(map);
+                    }
+                });
+                // map.fitBounds(layer.getBounds());
+
+
+
+
+                // Layer Control
+                // L.control.layers({
+                //     "December": relativeMap,
+                //     "December": relativeMap
+                // }, {}, {
+                //     position: 'topright',
+                //     collapsed: false
+                //     }).addTo(map);
+
+
+            });
+  }
+
+  render_map(1);
+
+  var slider = d3
+    .sliderHorizontal()
+    .min(1)
+    .max(12)
+    .step(1)
+    .width(250)
+    .displayValue(false)
+    .on('onchange', (val) => {
+      // d3.select('#value').text(val);
+      // map.eachLayer(function (layer) {
+      //     map.removeLayer(layer);
+      // });
+      // d3.select('#value').text(month_name[val-1])
+      render_map(val);
+    });
+
+  d3.select('#slider')
+    .append('svg')
+    .attr('width', '')
+    .attr('height', '70')
+    .append('g')
+    .attr('transform', 'translate(30,30)')
+    .call(slider);
+
+  
+</script>
+
+
+<!-- <script>
+
+  // Basemap
+  var map = L.map("map").setView([50, 20], 4);
+  var url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
+  L.tileLayer(url, {
+    attribution: "OSM & Carto",
+    subdomains: "abcd",
+    maxZoom: 16
+  }).addTo(map);
+
+
+  // Layer Control
+//   var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+//   var baseMaps = {
+//     "<span style='color: gray'>Grayscale</span>": grayscale,
+//     "Streets": streets
+//   };
+
+  // GeoTIFF
+  var tiff = "./data/relativeMap2.tif";
+
+
+
+  d3.request(tiff).responseType('arraybuffer').get(
+            function (error, tiffData) {
+                let s = L.ScalarField.fromGeoTIFF(tiffData.response);
+
+                let relativeMap = L.canvasLayer.scalarField(s, {
+                    opacity: 0.5,
+                    color: chroma.scale('YlOrRd').domain(s.range),
+                    interpolate: false
+                }).addTo(map);
+
+                relativeMap.on('click', function (e) {
+                    if (e.value !== null) {
+                        let v = e.value.toFixed(2);
+                        let html = (`<span class="popupText">Score ${v}</span>`);
+                        let popup = L.popup()
+                            .setLatLng(e.latlng)
+                            .setContent(html)
+                            .openOn(map);
+                    }
+                });
+                // map.fitBounds(layer.getBounds());
+
+
+
+
+                // Layer Control
+                L.control.layers({
+                    "December": relativeMap,
+                    "December": relativeMap
+                }, {}, {
+                    position: 'topright',
+                    collapsed: false
+                    }).addTo(map);
+
+
+            });
+  
+
+
+
+
+  // d3.request(tiff).responseType('arraybuffer').get(
+  //   function(error, tiffData) {
+  //     var s = L.ScalarField.fromGeoTIFF(buffer);
+  //     let layer = L.canvasLayer.scalarField(s, {
+  //       color: chroma.scale('OrRd').domain(s.range),
+  //       opacity: 0.7,
+  //       interpolate: false,
+  //       mouseMoveCursor: null,
+  //   }).addTo(map);
+
+
+  //   // Add score info panel
+
+  //   var info = L.control();
+
+  //   info.onAdd = function (map) {
+  //       this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+  //       this.update();
+  //       return this._div;
+  //   };
+
+  //   // method that we will use to update the control based on feature properties passed
+  //   info.update = function (props) {
+  //       this._div.innerHTML = '<h4>Relative score</h4>' +  (props!=null ?
+  //           props
+  //           : 'Hover over a state');
+  //   };
+
+  //   info.addTo(map);
+
+
+  //   layer.on("click", function(e){
+  //     if (e.value!=null){
+  //       info.update(e.value);
+  //     }
+  //   })
+
+
+  //   // map.fitBounds(layer.getBounds());
+  // });
+
+</script> -->
+
+</body>
+</html>

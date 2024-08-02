@@ -1,0 +1,42 @@
+
+Looking for a warm place to travel? Tired of endless rain? Want to know the best season to travel? You are in the right place ! 
+
+<br><br>
+
+- <span class="collapse"><b>Methodology</b></span>
+<script>
+var coll = document.getElementsByClassName("collapse");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = document.getElementById("methodology");
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+</script>
+<p id="methodology" class="paragraph" style="display: none;">We use <a href="https://www.nature.com/articles/s41597-020-0453-3">CRU TS 4.0</a>, a monthly high-resolution climate dataset to evaluate the best month of travel.
+Four factors are considered and averaged to calculate an <b>absolute score</b> for each month: <br>
+1️⃣ Wet days (20%), the less the better; <br>
+2️⃣ Percipitation (30%), the less the better; <br>
+3️⃣ Maximum temperature (30%), full score when less than 30 degrees; <br>
+4️⃣ Minimum temperature (20%), full score when more than 10 degrees. <br>
+
+<br>
+
+For each place, the 12 absolute scores are normalized from [min,max] to a <b>relative score</b> in [0,100]. In the map we always show this relative score ! 😉
+
+</p>
+
+<br>
+<br>
+
+- <span class="collapse"><b>Tips</b></span>
+<br>
+<p class="paragraph">1. Click on a place to show the score ! <br> 2. Use the slider to toggle the month! 👇</p>
+
