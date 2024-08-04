@@ -1,0 +1,60 @@
+{
+    "name": "ih-leaflet-canvaslayer-field",
+    "version": "1.5.3",
+    "description": "A set of layers using canvas to draw ASCIIGrid or GeoTIFF files. This includes a basic raster layer (*ScalaField*) and an animated layer for vector fields, such as wind or currents (*VectorFieldAnim*)",
+    "main": "index.js",
+    "dependencies": {
+        "@turf/inside": "^4.7.3",
+        "chroma-js": "^2.1.0",
+        "d3": "4.9.1",
+        "geotiff": "0.4.1",
+        "leaflet": ">=1.0.3",
+        "npm": "^6.14.7"
+    },
+    "devDependencies": {
+        "babel-core": "^6.26.3",
+        "babel-loader": "^7.0.0",
+        "babel-preset-es2015": "^6.24.1",
+        "eslint": "^7.7.0",
+        "eslint-config-airbnb-base": "^11.2.0",
+        "eslint-loader": "^4.0.2",
+        "eslint-plugin-import": "^2.2.0",
+        "eslint-webpack": "^3.12.2",
+        "fs-extra": "^3.0.1",
+        "jasmine": "^2.8.0",
+        "jasmine-core": "^2.8.0",
+        "karma": "^1.7.1",
+        "karma-chrome-launcher": "^2.2.0",
+        "karma-cli": "^1.0.1",
+        "karma-jasmine": "^1.1.0",
+        "webpack": "^4.44.1",
+        "webpack-cli": "^3.3.12",
+        "webpack-dev-server": "^3.11.0",
+        "webpack-shell-plugin": "^0.5.0"
+    },
+    "scripts": {
+        "start": "webpack --watch",
+        "build": "webpack -p",
+        "web": "webpack-dev-server",
+        "test": "karma start"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/IHCantabria/Leaflet.CanvasLayer.Field.git"
+    },
+    "keywords": [
+        "leaflet",
+        "vectorField",
+        "wind",
+        "currents",
+        "animation",
+        "raster"
+    ],
+    "author": {
+        "name": "Víctor Velarde Gutiérrez",
+        "email": "victor.velarde@gmail.com",
+        "url": "http://victorvelarde.github.io/"
+    },
+    "license": "GPL-3.0",
+    "homepage": "https://github.com/IHCantabria/Leaflet.CanvasLayer.Field"
+}
