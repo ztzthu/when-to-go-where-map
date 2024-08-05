@@ -17,6 +17,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
     <!-- <script src="data/world.js"></script> -->
 
+
+    <!-- vector map using mapbox, see https://docs.stadiamaps.com/tutorials/vector-tiles-with-leaflet/ -->
+    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"> -->
+    <!-- <script type="text/javascript" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> -->
+    <!-- MapLibre GL JS (still required to handle the rendering) -->
+    <script type="text/javascript" src="//unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.js"></script>
+    <link href="//unpkg.com/maplibre-gl@4.0.2/dist/maplibre-gl.css" rel="stylesheet">
+    <!-- Mapbox GL Leaflet -->
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.20/leaflet-maplibre-gl.js"></script>
+
+
     <!-- No zoom in -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
@@ -202,12 +213,22 @@
         // Basemap
         var map = L.map("map").setView([50, 20], 3);
         // var url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
-        var url = 'https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}@2x.png&ap' + 'i_k' + 'ey=7a1c9723-1' + 'a3c-4d26-b0e3-eec' + '72f15030e'
-        L.tileLayer(url, {
-            attribution: "OSM & Carto",
-            subdomains: "abcd",
-            maxZoom: 6
+        // var url = 'https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}@2x.png' // + '&ap' + 'i_k' + 'ey=7a1c9723-1' + 'a3c-4d26-b0e3-eec' + '72f15030e'
+        // L.tileLayer(url, {
+        //     attribution: "OSM & Carto",
+        //     subdomains: "abcd",
+        //     maxZoom: 6
+        // }).addTo(map);
+
+        // // vector map - from https://docs.stadiamaps.com/tutorials/vector-tiles-with-leaflet/
+        // MapLibre GL JS does not handle RTL text by default,
+        // so we recommend adding this dependency to fully support RTL rendering if your style includes RTL text
+        maplibregl.setRTLTextPlugin('https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js');
+        L.maplibreGL({
+            style: 'https://tiles.stadiamaps.com/styles/stamen_toner.json', // Style URL; see our documentation for more options
+            attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
         }).addTo(map);
+
 
         var month_name = ['Janurary', 'Feburary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
@@ -313,6 +334,12 @@
             svg_chart.append('line')
             .style("stroke", "#003399")
             // .style("stroke-width", 2)
+            .attr("x1", x(0.5))
+            .attr("x2", x(12.5));
+
+        var hot_line =
+            svg_chart.append('line')
+            .style("stroke", "#b30000")
             .attr("x1", x(0.5))
             .attr("x2", x(12.5));
 
@@ -432,6 +459,9 @@
                     cold_line
                         .attr("y1", y_temp(10))
                         .attr("y2", y_temp(10));
+                    hot_line
+                        .attr("y1", y_temp(30))
+                        .attr("y2", y_temp(30));
 
                     // define y rain axis
                     y_rain.domain([0, Math.max(50, d3.max(climate_data, d => parseFloat(d.precipitation)) * 1.2)])
