@@ -1,7 +1,7 @@
  Looking for a warm place to travel? Tired of endless rain? Want to know the best season to travel? You are in the right place !
 
 <br><br> - <span class="collapse"><b>Methodology</b></span>
-<script>
+<!-- <script>
     var coll = document.getElementsByClassName("collapse");
     var i;
 
@@ -16,16 +16,22 @@
             }
         });
     }
-</script>
-<p id="methodology" class="paragraph" style="display: none;">We use <a href="https://www.nature.com/articles/s41597-020-0453-3">CRU TS 4.0</a>, a monthly high-resolution climate dataset to evaluate the best month of travel. Four factors are considered and averaged to calculate an <b>absolute score</b> for each
-    month: <br> 1️⃣ Wet days (20%), the less the better; <br> 2️⃣ Percipitation (30%), the less the better; <br> 3️⃣ Maximum temperature (30%), full score when less than 30 degrees; <br> 4️⃣ Minimum temperature (20%), full score when more than 10 degrees.
+</script> -->
+<p id="methodology" class="paragraph" style="display: block">We use <a href="https://www.nature.com/articles/s41597-020-0453-3">CRU TS 4.0</a>, a monthly high-resolution climate dataset to evaluate the best month of travel. Four factors are considered and averaged to calculate an <b>absolute score</b> for each
+    month: <br> <br> 1️⃣ Wet days (20%), the less the better; <br> 2️⃣ Percipitation (30%), the less the better; <br> 3️⃣ Maximum temperature (30%), full score when less than 30 degrees; <br> 4️⃣ Minimum temperature (20%), full score when more than 10
+    degrees.
     <br>
 
-    <br> For each place, the 12 absolute scores are normalized from [min,max] to a <b>relative score</b> in [0,100]. In the map we always show this relative score ! 😉 limitations regarding elevation: https://journals.ametsoc.org/view/journals/clim/12/3/1520-0442_1999_012_0829_rtcstc_2.0.co_2.xml#i1520-0442-12-3-829-f22
+    <br> When the check box "I already know the destination" is not checked, we show this <b>absolute score</b> to facilitate comparison across diffrent places for a given month.
+
+    <br>
+    <br> When the check box "I already know the destination" is checked, for each coordinate, the 12 absolute scores are normalized from [min, max] to a <b>relative score</b> in [0,100] to visualize the confort level across the year for this specifc coordinate.
+
+    <br>
+    <br> Limitations: The elevation is not specified, the result might be erroneous in the mountain areas. See reference in the publication <a href="https://journals.ametsoc.org/view/journals/clim/12/3/1520-0442_1999_012_0829_rtcstc_2.0.co_2.xml">here</a>.
 
 </p>
 
+<!-- <br> - <span class="collapse"><b>Tips</b></span>
 <br>
-<br> - <span class="collapse"><b>Tips</b></span>
-<br>
-<p class="paragraph">1. Click on a place to show the score ! <br> 2. Use the slider to toggle the month! 👇</p>
+<p class="paragraph">1. Click on a place to show the score ! <br> 2. Use the slider to toggle the month! </p> -->

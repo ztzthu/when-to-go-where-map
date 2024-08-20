@@ -190,10 +190,10 @@
 
 <body>
 
-    <h3>☀️🌧️🥶🥵 <i>WHEN-to-go-WHERE-map</i>™</h3>
+    <h3>☀️🌧️🥶🥵 <i>WHEN-to-go-WHERE-map</i></h3>
 
     <input type="checkbox" id="checkbox" name="relative" value="true" onclick="render_map()" checked>
-    <label for="true">I already know where to go, tell me the best month!</label>
+    <label for="true">I already have the destination of my choice, tell me the best month to go there ! (<a href="/about_snippet.html">Help</a>)</label>
 
     <!-- <span id="value" style="display: inline-block; text-align: right;">Janurary</span> -->
 
@@ -226,7 +226,7 @@
         maplibregl.setRTLTextPlugin('https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js');
         L.maplibreGL({
             style: 'https://tiles.stadiamaps.com/styles/stamen_toner.json', // Style URL; see our documentation for more options
-            attribution: '&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
+            attribution: 'Data: <a href="https://www.nature.com/articles/s41597-020-0453-3/" target="_blank">CRU TS 4.0s</a>, &copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
         }).addTo(map);
 
 
